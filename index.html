@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notebook Expense Register</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- ===== AUTH SCREEN ===== -->
+  <div id="authScreen" class="auth-wrap">
+    <div class="auth-card">
+
+      <img src="assets/sf-icon-logo.png" alt="SpendFlow" class="auth-logo"/>
+
+      <h1 class="auth-title">Register Book</h1>
+      <p class="auth-sub" id="authSubText">Sign in to continue</p>
+
+      <div class="field">
+        <label for="authName">Name / Email</label>
+        <div class="auth-input-wrap">
+          <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <input type="text" id="authName" placeholder="Enter any name or email"/>
+        </div>
+      </div>
+      <div class="field">
+        <label for="authPassword">Password</label>
+        <div class="auth-input-wrap">
+          <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="authPassword" placeholder="Enter password"/>
+        </div>
+      </div>
+      <div class="field" id="authConfirmField" style="display:none;">
+        <label for="authPasswordConfirm">Confirm Password</label>
+        <div class="auth-input-wrap">
+          <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input type="password" id="authPasswordConfirm" placeholder="Re-enter password"/>
+        </div>
+      </div>
+
+      <p class="auth-error" id="authError"></p>
+
+      <button class="btn-primary" id="authSubmitBtn">Login</button>
+
+      <p class="auth-switch" id="authSwitchText"></p>
+    </div>
+  </div>
+
+  <!-- ===== MAIN APP ===== -->
+  <div class="container" id="appMain" style="display:none;">
+
+    <header class="header">
+      <div class="header-top">
+        <div class="header-brand">
+          <img src="assets/spendflow-logo.png" alt="SpendFlow" class="header-logo"/>
+          <p>Track student expenses</p>
+        </div>
+        <div class="header-right">
+          <div class="header-search" id="headerSearchWrap">
+            <button class="search-icon-btn" id="searchToggleBtn" type="button" aria-label="Search account">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <div class="search-box" id="searchBox" style="display:none;">
+              <input type="text" id="searchInput" placeholder="Search by name..." autocomplete="off"/>
+              <div class="search-results" id="searchResults"></div>
+            </div>
+          </div>
+          <span class="user-email" id="loggedInName"></span>
+          <button class="btn-logout" id="logoutBtn">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <section class="card">
+      <div class="card-header-row">
+        <h2 class="section-title">Add New Entry</h2>
+        <button class="myself-btn" id="myselfToggleBtn" type="button">
+          <span class="myself-icon">＋</span>
+          Main
+        </button>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="studentName">Name</label>
+          <input type="text" id="studentName" placeholder="Student name"/>
+        </div>
+        <div class="field">
+          <label for="lenderName">Boy's Name <span class="tip-text">(tip: different names create different accounts)</span></label>
+          <input type="text" id="lenderName" placeholder="Your name"/>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="field">
+          <label for="amount">Amount (Rs.)</label>
+          <div class="prefix-wrap">
+            <span class="prefix">Rs.</span>
+            <input type="number" id="amount" placeholder="0" min="1"/>
+          </div>
+        </div>
+        <div class="field">
+          <label for="date">Date</label>
+          <input type="date" id="date"/>
+        </div>
+        <div class="field">
+          <label for="time">Time</label>
+          <input type="time" id="time"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="reason">Purpose / Reason</label>
+        <input type="text" id="reason" placeholder="What was the money taken for"/>
+      </div>
+
+      <button class="btn-primary" id="submitBtn">Add List</button>
+    </section>
+
+    <section class="card">
+      <div class="records-header">
+        <div>
+          <h2 class="section-title">Candidate Accounts</h2>
+          <span class="count-badge" id="studentCountBadge">0 Students</span>
+        </div>
+      </div>
+      <div id="studentAccountsArea"></div>
+    </section>
+
+    <div class="toggle-btn-wrap">
+      <span class="toggle-btn-label">All Records</span>
+      <button class="footer-toggle-btn" id="recordsToggleBtn" type="button" aria-label="Toggle all records">
+        <svg class="footer-toggle-arrow" id="recordsToggleArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+    </div>
+
+    <section class="card" id="allRecordsSection" style="display:none;">
+      <div class="records-header">
+        <div>
+          <h2 class="section-title" id="recordsTitle">All Records</h2>
+          <span class="count-badge" id="countBadge">0 Records</span>
+        </div>
+        <div class="records-header-actions">
+          <button class="btn-clear-filter" id="clearFilterBtn" style="display:none;" onclick="clearFilter()">
+            Show All
+          </button>
+          <button class="btn-download-all" id="downloadAllBtn" style="display:none;" onclick="downloadAllPDF()">
+            Download receipts
+          </button>
+        </div>
+      </div>
+
+      <div id="tableArea"></div>
+
+      <div class="total-bar" id="totalBar" style="display:none;">
+        <span class="total-label" id="totalLabel">Total Debt</span>
+        <span class="total-value" id="totalAmount">Rs. 0</span>
+      </div>
+    </section>
+
+<div class="toggle-btn-wrap">
+  <span class="toggle-btn-label">About</span>
+  <button class="footer-toggle-btn" id="footerToggleBtn" type="button" aria-label="Toggle footer">
+      <svg class="footer-toggle-arrow" id="footerToggleArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+  </button>
+</div>
+
+
+
+
+    
+
+    <footer class="site-footer" id="siteFooter" style="display:none;">
+      <div class="footer-brand">
+        <h2 class="footer-title">Notebook - Register</h2>
+      </div>
+
+      <div class="footer-divider"></div>
+
+      <div class="footer-row">
+
+        <div class="footer-section footer-section-left">
+          <h3 class="footer-heading">Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="#">Home</a></li>
+            <li><a href="#" onclick="openMyselfPage(); return false;">My Account</a></li>
+            <li><a href="#" onclick="openAboutModal(); return false;">About Us</a></li>
+            <li><a href="#" onclick="triggerHeaderSearch(); return false;">Search</a></li>
+            <li><a href="#" onclick="openTrashPage(); return false;">Trash</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section footer-section-center">
+          <h3 class="footer-heading">Contact Information</h3>
+          <ul class="footer-contact">
+            <li>
+              <span class="footer-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+              </span>
+              <!-- EMAIL ADDRESS HERE -->
+              <span>faheemgilal96@gmail.com</span>
+            </li>
+            <li>
+              <span class="footer-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </span>
+              <!-- PHONE NUMBER HERE -->
+              <span>+92 329 ****152</span>
+            </li>
+            <li>
+              <span class="footer-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </span>
+              <!-- ADDRESS HERE -->
+              <span>Gulshan-e-iqbal Block 13A, karachi</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-section footer-section-right">
+          <h3 class="footer-heading">Follow Us</h3>
+          <div class="footer-social">
+            <!-- FACEBOOK LINK HERE -->
+            <a href="https://www.instagram.com/p/DRQBwPZDA2z/?utm_source=ig_web_button_share_sheet&igsh=MzRlODBiNWFlZA==" class="footer-social-icon" aria-label="Facebook" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12a10 10 0 1 0-11.5 9.88v-6.99H7.9V12h2.6V9.8c0-2.56 1.53-3.98 3.87-3.98 1.12 0 2.3.2 2.3.2v2.53h-1.3c-1.28 0-1.68.8-1.68 1.61V12h2.86l-.46 2.89h-2.4v6.99A10 10 0 0 0 22 12z"/></svg>
+            </a>
+            <!-- INSTAGRAM LINK HERE -->
+            <a href="https://www.instagram.com/faheem96_?igsh=MXhlYnAzdDI4bzd5dw==" class="footer-social-icon" aria-label="Instagram" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+            </a>
+            <!-- WHATSAPP LINK HERE -->
+            <a href="Massage on Email: ---> faheemgilal96@gmail.com" class="footer-social-icon" aria-label="WhatsApp" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.6 6.32A8.86 8.86 0 0 0 12.02 4a8.89 8.89 0 0 0-7.7 13.32L3 21l3.79-1.28a8.9 8.9 0 0 0 4.98 1.51h.01A8.89 8.89 0 0 0 20.68 12a8.86 8.86 0 0 0-3.08-5.68zM12.02 19.5a7.4 7.4 0 0 1-3.77-1.03l-.27-.16-2.8.94.93-2.73-.18-.28a7.42 7.42 0 1 1 6.09 3.26zm4.08-5.56c-.22-.11-1.31-.65-1.51-.72s-.35-.11-.5.11-.58.72-.71.87-.26.17-.48.06a6.06 6.06 0 0 1-1.78-1.1 6.7 6.7 0 0 1-1.23-1.53c-.13-.22 0-.34.1-.45.1-.1.22-.26.33-.39a1.5 1.5 0 0 0 .22-.37.4.4 0 0 0 0-.39c-.06-.11-.5-1.2-.68-1.65-.18-.43-.36-.37-.5-.38h-.43a.82.82 0 0 0-.6.28 2.5 2.5 0 0 0-.78 1.86 4.34 4.34 0 0 0 .91 2.3 9.94 9.94 0 0 0 3.8 3.36c.53.23.94.36 1.26.47.53.17 1.01.14 1.39.09.42-.06 1.31-.53 1.5-1.05.18-.51.18-.95.13-1.05-.06-.1-.2-.16-.42-.27z"/></svg>
+            </a>
+            <!-- GITHUB LINK HERE -->
+            <a href="https://github.com/faheem96ch/Expenses-book.git" class="footer-social-icon" aria-label="GitHub" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.58 2 12.25c0 4.53 2.87 8.37 6.84 9.73.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.88-2.78.62-3.37-1.21-3.37-1.21-.45-1.19-1.11-1.5-1.11-1.5-.91-.64.07-.63.07-.63 1 .07 1.53 1.06 1.53 1.06.89 1.57 2.34 1.11 2.91.85.09-.67.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.73 0 0 .84-.28 2.75 1.05a9.4 9.4 0 0 1 5 0c1.91-1.33 2.75-1.05 2.75-1.05.55 1.42.2 2.47.1 2.73.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.26 10.26 0 0 0 22 12.25C22 6.58 17.52 2 12 2z"/></svg>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        © 2026 Khata Notebooks. All Rights Reserved. Developed by FM
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ===== MYSELF PRIVATE PAGE (opens on top when Myself is clicked) ===== -->
+  <div class="myself-page" id="myselfPage" style="display:none;">
+    <div class="myself-page-inner">
+      <div class="myself-page-header">
+        <h1>My Account</h1>
+        <div class="myself-header-actions">
+          <div class="header-search" id="ownSearchWrap">
+            <button class="search-icon-btn-light" id="ownSearchToggleBtn" type="button" aria-label="Search my account">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <div class="search-box" id="ownSearchBox" style="display:none;">
+              <input type="text" id="ownSearchInput" placeholder="Search by name..." autocomplete="off"/>
+              <div class="search-results" id="ownSearchResults"></div>
+            </div>
+          </div>
+          <button class="btn-close-myself" id="closeMyselfBtn" type="button">Close ✕</button>
+        </div>
+      </div>
+
+      <section class="card">
+        <h2 class="section-title">My Loans</h2>
+
+        <div class="field">
+          <label for="ownFromName">Received From</label>
+          <input type="text" id="ownFromName" placeholder="Person's name"/>
+        </div>
+
+        <div class="grid-3">
+          <div class="field">
+            <label for="ownAmount">Amount (Rs.)</label>
+            <div class="prefix-wrap">
+              <span class="prefix">Rs.</span>
+              <input type="number" id="ownAmount" placeholder="0" min="1"/>
+            </div>
+          </div>
+          <div class="field">
+            <label for="ownDate">Date</label>
+            <input type="date" id="ownDate"/>
+          </div>
+          <div class="field">
+            <label for="ownTime">Time</label>
+            <input type="time" id="ownTime"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="ownReason">Purpose / Reason</label>
+          <input type="text" id="ownReason" placeholder="What the money was for"/>
+        </div>
+
+        <button class="btn-primary" id="ownSubmitBtn">Add Entry</button>
+      </section>
+
+      <section class="card">
+        <div class="records-header">
+          <div>
+            <h2 class="section-title">People I Pay Back</h2>
+            <span class="count-badge" id="ownStudentCountBadge">0 People</span>
+          </div>
+        </div>
+        <div id="ownAccountsArea"></div>
+      </section>
+
+      <section class="card">
+        <div class="records-header">
+          <div>
+            <h2 class="section-title" id="ownRecordsTitle">My Loan History</h2>
+            <span class="count-badge" id="ownCountBadge">0 Records</span>
+          </div>
+          <div class="records-header-actions">
+            <button class="btn-clear-filter" id="ownClearFilterBtn" style="display:none;" onclick="clearOwnFilter()">
+              Show All
+            </button>
+            <button class="btn-download-all" id="ownDownloadAllBtn" style="display:none;" onclick="downloadOwnAllPDF()">
+              Download receipts
+            </button>
+          </div>
+        </div>
+
+        <div id="ownTableArea"></div>
+
+        <div class="total-bar" id="ownTotalBar" style="display:none;">
+          <span class="total-label" id="ownTotalLabel">Total Loan</span>
+          <span class="total-value" id="ownTotalAmount">Rs. 0</span>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ===== TRASH PAGE (deleted records live here until permanently removed) ===== -->
+  <div class="myself-page" id="trashPage" style="display:none;">
+    <div class="myself-page-inner">
+      <div class="myself-page-header">
+        <h1>Trash</h1>
+        <div class="myself-header-actions">
+          <button class="btn-close-myself" id="closeTrashBtn" type="button">Close ✕</button>
+        </div>
+      </div>
+
+      <section class="card">
+        <div class="records-header">
+          <div>
+            <h2 class="section-title">Deleted Records</h2>
+            <span class="count-badge" id="trashCountBadge">0 Items</span>
+          </div>
+        </div>
+        <div id="trashArea"></div>
+      </section>
+    </div>
+  </div>
+
+  <div id="toast">Entry added</div>
+
+  <!-- ===== ABOUT US POPUP (opens the full brand letter) ===== -->
+  <div class="about-modal" id="aboutModal" style="display:none;">
+    <div class="about-modal-card">
+      <button class="btn-close-myself" id="closeAboutBtn" type="button">Close ✕</button>
+      <h2 class="footer-title">Khata - Expenses Register</h2>
+      <p class="footer-tagline">Apka udhaar, apka hisaab</p>
+      <p class="footer-desc">"Khata" ek aasan aur mufeed tareeqa hai un logon ke liye jo doosron ko udhaar dete hain aur baad mein bhool jate hain kis ne kitna udhaar liya tha. Is website ke zariye aap har us shaks ka naam register kar sakte hain jisay aap ne udhaar diya hai, aur uski receipt bhi download kar ke unhe bhej sakte hain — taake koi confusion na ho.</p>
+      <p class="footer-desc">Iske ilawa, "My Account" feature aap ko un logon ka record rakhne mein madad karta hai jinhe aap advance (paishgi) dete hain — jinke naam aap bhool sakte hain. Aap unka naam likh kar record save kar sakte hain, aur receipt download kar ke apne paas mehfooz rakh sakte hain.</p>
+      <p class="footer-desc">Khata ka maqsad hai aapke lain-dain (transactions) ko organized, transparent aur stress-free banana — taake na koi udhaar bhoole, na koi galat fehmi ho.</p>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+  <script src="app.js"></script>
+  
+</body>
+</html>
