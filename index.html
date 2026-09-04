@@ -57,6 +57,9 @@
           <p>Track student expenses</p>
         </div>
         <div class="header-right">
+          <button class="search-icon-btn" id="advanceToggleBtn" type="button" aria-label="Tasks">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+          </button>
           <div class="header-search" id="headerSearchWrap">
             <button class="search-icon-btn" id="searchToggleBtn" type="button" aria-label="Search account">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -351,11 +354,134 @@
       <section class="card">
         <div class="records-header">
           <div>
-            <h2 class="section-title">Deleted Records</h2>
-            <span class="count-badge" id="trashCountBadge">0 Items</span>
+            <h2 class="section-title">Text Note</h2>
+            <span class="count-badge" id="trashMainCountBadge">0 Items</span>
           </div>
         </div>
-        <div id="trashArea"></div>
+        <div id="trashMainArea"></div>
+      </section>
+
+      <section class="card">
+        <div class="records-header">
+          <div>
+            <h2 class="section-title">My Account</h2>
+            <span class="count-badge" id="trashOwnCountBadge">0 Items</span>
+          </div>
+        </div>
+        <div id="trashOwnArea"></div>
+      </section>
+
+      <section class="card">
+        <div class="records-header">
+          <div>
+            <h2 class="section-title">Tasks</h2>
+            <span class="count-badge" id="trashAdvanceCountBadge">0 Items</span>
+          </div>
+        </div>
+        <div id="trashAdvanceArea"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ===== ADVANCE ACCOUNTS PAGE (opens on top when the new header icon is clicked) ===== -->
+  <div class="myself-page" id="advancePage" style="display:none;">
+    <div class="myself-page-inner">
+      <div class="myself-page-header">
+        <h1>Tasks</h1>
+        <div class="myself-header-actions">
+          <div class="header-search" id="advanceSearchWrap">
+            <button class="search-icon-btn-light" id="advanceSearchToggleBtn" type="button" aria-label="Search advance accounts">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <div class="search-box" id="advanceSearchBox" style="display:none;">
+              <input type="text" id="advanceSearchInput" placeholder="Search by name..." autocomplete="off"/>
+              <div class="search-results" id="advanceSearchResults"></div>
+            </div>
+          </div>
+          <button class="btn-close-myself" id="closeAdvanceBtn" type="button">Close ✕</button>
+        </div>
+      </div>
+
+      <section class="card">
+        <h2 class="section-title">Add Task</h2>
+
+        <div class="field">
+          <label for="advanceName">Name</label>
+          <input type="text" id="advanceName" placeholder="Person's name"/>
+        </div>
+        <div class="field">
+          <label for="advanceOtherName">Other Name <span class="tip-text">(tip: different names create different accounts)</span></label>
+          <input type="text" id="advanceOtherName" placeholder="Other name"/>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="advanceAmountTaken">Amount Taken (Rs.)</label>
+            <div class="prefix-wrap">
+              <span class="prefix">Rs.</span>
+              <input type="number" id="advanceAmountTaken" placeholder="0" min="1"/>
+            </div>
+          </div>
+          <div class="field">
+            <label for="advanceAmountRemaining">Amount Remaining (Rs.)</label>
+            <div class="prefix-wrap">
+              <span class="prefix">Rs.</span>
+              <input type="number" id="advanceAmountRemaining" placeholder="0" min="0"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="advanceDate">Date</label>
+            <input type="date" id="advanceDate"/>
+          </div>
+          <div class="field">
+            <label for="advanceTime">Time</label>
+            <input type="time" id="advanceTime"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="advanceReason">Purpose / Reason</label>
+          <input type="text" id="advanceReason" placeholder="What was the money taken for"/>
+        </div>
+
+        <button class="btn-primary" id="advanceSubmitBtn">Add Entry</button>
+      </section>
+
+      <section class="card">
+        <div class="records-header">
+          <div>
+            <h2 class="section-title">Tasks</h2>
+            <span class="count-badge" id="advanceStudentCountBadge">0 Tasks</span>
+          </div>
+        </div>
+        <div id="advanceAccountsArea"></div>
+      </section>
+
+      <section class="card">
+        <div class="records-header">
+          <div>
+            <h2 class="section-title" id="advanceRecordsTitle">Task History</h2>
+            <span class="count-badge" id="advanceCountBadge">0 Records</span>
+          </div>
+          <div class="records-header-actions">
+            <button class="btn-clear-filter" id="advanceClearFilterBtn" style="display:none;" onclick="clearAdvanceFilter()">
+              Show All
+            </button>
+            <button class="btn-download-all" id="advanceDownloadAllBtn" style="display:none;" onclick="downloadAdvanceAllPDF()">
+              Download receipts
+            </button>
+          </div>
+        </div>
+
+        <div id="advanceTableArea"></div>
+
+        <div class="total-bar" id="advanceTotalBar" style="display:none;">
+          <span class="total-label" id="advanceTotalLabel">Total Taken</span>
+          <span class="total-value" id="advanceTotalAmount">Rs. 0</span>
+        </div>
       </section>
     </div>
   </div>
