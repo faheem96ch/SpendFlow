@@ -555,7 +555,7 @@ function renderTable() {
       <td class="td-bold">${esc(r.student)}</td>
       <td>${esc(r.lender)}</td>
       <td class="td-amount${r.struck ? ' struck-amount' : ''}">Rs. ${r.amount.toLocaleString('en-PK')}</td>
-      <td class="td-reason" title="${esc(r.reason)}">${esc(r.reason)}</td>
+      <td class="td-reason" title="${esc(r.reason)}" onclick="this.classList.toggle('reason-expanded')">${esc(r.reason)}</td>
       <td class="td-muted" style="white-space:nowrap;">${r.date} &nbsp; ${r.time}</td>
       <td class="td-check"><input type="checkbox" class="strike-check" ${r.struck ? 'checked' : ''} onchange="toggleStrike(${r.id})" title="Mark as settled"/></td>
       <td><button class="btn-del" onclick="deleteRecord(${r.id})">Delete</button></td>
@@ -753,14 +753,14 @@ function buildPDF(recordsList, titleText, filenamePrefix) {
     doc.text(doc.splitTextToSize(r.lender, cols[2].w - 4), cols[2].x + 2, midY);
 
     // Amount
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('helvetica', r.struck ? 'normal' : 'bold');
     doc.setFontSize(8);
-    doc.setTextColor(r.struck ? 150 : 0, r.struck ? 150 : 110, r.struck ? 150 : 182);
+    doc.setTextColor(0, 110, 182);
     const amountText = 'Rs. ' + r.amount.toLocaleString('en-PK');
     doc.text(amountText, cols[3].x + 2, midY);
     if (r.struck) {
       const tw = doc.getTextWidth(amountText);
-      doc.setDrawColor(150, 150, 150);
+      doc.setDrawColor(0, 110, 182);
       doc.setLineWidth(0.35);
       doc.line(cols[3].x + 2, midY - 1.3, cols[3].x + 2 + tw, midY - 1.3);
     }
@@ -1002,7 +1002,7 @@ function renderOwnTable() {
       <td class="td-muted">${serial}</td>
       <td class="td-bold">${esc(r.from)}</td>
       <td class="td-amount${r.struck ? ' struck-amount' : ''}">Rs. ${r.amount.toLocaleString('en-PK')}</td>
-      <td class="td-reason" title="${esc(r.reason)}">${esc(r.reason)}</td>
+      <td class="td-reason" title="${esc(r.reason)}" onclick="this.classList.toggle('reason-expanded')">${esc(r.reason)}</td>
       <td class="td-muted" style="white-space:nowrap;">${r.date} &nbsp; ${r.time}</td>
       <td class="td-check"><input type="checkbox" class="strike-check" ${r.struck ? 'checked' : ''} onchange="toggleOwnStrike(${r.id})" title="Mark as settled"/></td>
       <td><button class="btn-del" onclick="deleteOwnRecord(${r.id})">Delete</button></td>
@@ -1152,14 +1152,14 @@ function buildOwnPDF(recordsList, titleText, filenamePrefix) {
     doc.setTextColor(26, 26, 26);
     doc.text(doc.splitTextToSize(r.from, cols[1].w - 4), cols[1].x + 2, midY);
 
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('helvetica', r.struck ? 'normal' : 'bold');
     doc.setFontSize(8);
-    doc.setTextColor(r.struck ? 150 : 0, r.struck ? 150 : 110, r.struck ? 150 : 182);
+    doc.setTextColor(0, 110, 182);
     const amountText = 'Rs. ' + r.amount.toLocaleString('en-PK');
     doc.text(amountText, cols[2].x + 2, midY);
     if (r.struck) {
       const tw = doc.getTextWidth(amountText);
-      doc.setDrawColor(150, 150, 150);
+      doc.setDrawColor(0, 110, 182);
       doc.setLineWidth(0.35);
       doc.line(cols[2].x + 2, midY - 1.3, cols[2].x + 2 + tw, midY - 1.3);
     }
@@ -1406,9 +1406,9 @@ function renderAdvanceTable() {
       <td class="td-muted">${serial}</td>
       <td class="td-bold">${esc(r.name)}</td>
       <td>${esc(r.otherName)}</td>
-      <td class="td-amount${r.struck ? ' struck-amount' : ''}">Rs. ${r.amountTaken.toLocaleString('en-PK')}</td>
+      <td class="td-amount td-amount-taken${r.struck ? ' struck-amount' : ''}">Rs. ${r.amountTaken.toLocaleString('en-PK')}</td>
       <td class="td-amount${r.struck ? ' struck-amount' : ''}">Rs. ${r.amountRemaining.toLocaleString('en-PK')}</td>
-      <td class="td-reason" title="${esc(r.reason)}">${esc(r.reason)}</td>
+      <td class="td-reason" title="${esc(r.reason)}" onclick="this.classList.toggle('reason-expanded')">${esc(r.reason)}</td>
       <td class="td-muted" style="white-space:nowrap;">${r.date} &nbsp; ${r.time}</td>
       <td class="td-check"><input type="checkbox" class="strike-check" ${r.struck ? 'checked' : ''} onchange="toggleAdvanceStrike(${r.id})" title="Mark as settled"/></td>
       <td><button class="btn-del" onclick="deleteAdvanceRecord(${r.id})">Delete</button></td>
@@ -1564,26 +1564,26 @@ function buildAdvancePDF(recordsList, titleText, filenamePrefix) {
     doc.setTextColor(50, 50, 50);
     doc.text(doc.splitTextToSize(r.otherName, cols[2].w - 4), cols[2].x + 2, midY);
 
-    doc.setFont('helvetica', 'bold');
+    doc.setFont('helvetica', r.struck ? 'normal' : 'bold');
     doc.setFontSize(7.5);
-    doc.setTextColor(r.struck ? 150 : 0, r.struck ? 150 : 110, r.struck ? 150 : 182);
+    doc.setTextColor(139, 38, 38);
     const takenText = 'Rs. ' + r.amountTaken.toLocaleString('en-PK');
     doc.text(takenText, cols[3].x + 2, midY);
     if (r.struck) {
       const tw = doc.getTextWidth(takenText);
-      doc.setDrawColor(150, 150, 150);
+      doc.setDrawColor(139, 38, 38);
       doc.setLineWidth(0.35);
       doc.line(cols[3].x + 2, midY - 1.3, cols[3].x + 2 + tw, midY - 1.3);
     }
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
-    doc.setTextColor(r.struck ? 150 : 80, r.struck ? 150 : 80, r.struck ? 150 : 80);
+    doc.setTextColor(0, 110, 182);
     const remainingText = 'Rs. ' + r.amountRemaining.toLocaleString('en-PK');
     doc.text(remainingText, cols[4].x + 2, midY);
     if (r.struck) {
       const rw = doc.getTextWidth(remainingText);
-      doc.setDrawColor(150, 150, 150);
+      doc.setDrawColor(0, 110, 182);
       doc.setLineWidth(0.35);
       doc.line(cols[4].x + 2, midY - 1.3, cols[4].x + 2 + rw, midY - 1.3);
     }
@@ -1674,7 +1674,7 @@ function renderTrashPortion(type, areaId, badgeId) {
       <td class="td-bold">${nameCell}</td>
       <td class="td-amount${r.struck ? ' struck-amount' : ''}">Rs. ${amountVal.toLocaleString('en-PK')}</td>
       ${remainingCell}
-      <td class="td-reason" title="${esc(r.reason)}">${esc(r.reason)}</td>
+      <td class="td-reason" title="${esc(r.reason)}" onclick="this.classList.toggle('reason-expanded')">${esc(r.reason)}</td>
       <td class="td-muted" style="white-space:nowrap;">${r.date} &nbsp; ${r.time}</td>
       <td style="white-space:nowrap;">
         <button class="btn-view" onclick="restoreFromTrash(${r.id})">Restore</button>

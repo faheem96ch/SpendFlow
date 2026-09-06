@@ -198,7 +198,15 @@ td { padding: 10px 12px; vertical-align: middle; }
 .td-amount { font-weight: 700; color: var(--amount); white-space: nowrap; }
 .td-reason { max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.struck-amount { text-decoration: line-through; color: var(--muted); opacity: 0.75; }
+.struck-amount { text-decoration: line-through; font-weight: 400; }
+.td-amount-taken { color: #8B2626; }
+.td-reason { cursor: pointer; }
+.td-reason.reason-expanded {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  word-break: break-word;
+}
 .td-check { text-align: center; }
 .strike-check { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-2, #4a7bd8); }
 
