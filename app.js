@@ -459,7 +459,11 @@ function getStudentGroups() {
     if (!r.struck) groups[key].total += r.amount;
     groups[key].count += 1;
   });
-  return Object.values(groups).sort((a, b) => b.total - a.total);
+  // records are newest-first (unshift), so object insertion order already
+  // reflects the most-recently-entered account first. Keeping that order
+  // (instead of sorting by total) means entering a new record for an
+  // existing name brings that account back to the top of the list.
+  return Object.values(groups);
 }
 
 function renderStudentAccounts() {
@@ -683,7 +687,7 @@ function buildPDF(recordsList, titleText, filenamePrefix) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.text('Total Records: ' + recordsList.length, margin + 4, 41);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('helvetica', 'bold');
   doc.setTextColor(0, 110, 182);
   doc.setFontSize(9);
   doc.text('Total Debt: Rs. ' + total.toLocaleString('en-PK'), W - margin - 4, 41, { align: 'right' });
@@ -753,14 +757,14 @@ function buildPDF(recordsList, titleText, filenamePrefix) {
     doc.text(doc.splitTextToSize(r.lender, cols[2].w - 4), cols[2].x + 2, midY);
 
     // Amount
-    doc.setFont('helvetica', r.struck ? 'normal' : 'bold');
+    doc.setFont('helvetica', r.struck ? 'italic' : 'bold');
     doc.setFontSize(8);
     doc.setTextColor(0, 110, 182);
     const amountText = 'Rs. ' + r.amount.toLocaleString('en-PK');
     doc.text(amountText, cols[3].x + 2, midY);
     if (r.struck) {
       const tw = doc.getTextWidth(amountText);
-      doc.setDrawColor(0, 110, 182);
+      doc.setDrawColor(0, 0, 0);
       doc.setLineWidth(0.35);
       doc.line(cols[3].x + 2, midY - 1.3, cols[3].x + 2 + tw, midY - 1.3);
     }
@@ -909,7 +913,8 @@ function getOwnGroups() {
     if (!r.struck) groups[key].total += r.amount;
     groups[key].count += 1;
   });
-  return Object.values(groups).sort((a, b) => b.total - a.total);
+  // Keep insertion order (newest entry first) instead of sorting by total.
+  return Object.values(groups);
 }
 
 function renderOwnAccounts() {
@@ -1097,7 +1102,7 @@ function buildOwnPDF(recordsList, titleText, filenamePrefix) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.text('Total Records: ' + recordsList.length, margin + 4, 41);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('helvetica', 'bold');
   doc.setTextColor(0, 110, 182);
   doc.setFontSize(9);
   doc.text('Total Loan: Rs. ' + total.toLocaleString('en-PK'), W - margin - 4, 41, { align: 'right' });
@@ -1152,14 +1157,14 @@ function buildOwnPDF(recordsList, titleText, filenamePrefix) {
     doc.setTextColor(26, 26, 26);
     doc.text(doc.splitTextToSize(r.from, cols[1].w - 4), cols[1].x + 2, midY);
 
-    doc.setFont('helvetica', r.struck ? 'normal' : 'bold');
+    doc.setFont('helvetica', r.struck ? 'italic' : 'bold');
     doc.setFontSize(8);
     doc.setTextColor(0, 110, 182);
     const amountText = 'Rs. ' + r.amount.toLocaleString('en-PK');
     doc.text(amountText, cols[2].x + 2, midY);
     if (r.struck) {
       const tw = doc.getTextWidth(amountText);
-      doc.setDrawColor(0, 110, 182);
+      doc.setDrawColor(0, 0, 0);
       doc.setLineWidth(0.35);
       doc.line(cols[2].x + 2, midY - 1.3, cols[2].x + 2 + tw, midY - 1.3);
     }
@@ -1313,7 +1318,8 @@ function getAdvanceGroups() {
     if (!r.struck) groups[key].total += r.amountRemaining;
     groups[key].count += 1;
   });
-  return Object.values(groups).sort((a, b) => b.total - a.total);
+  // Keep insertion order (newest entry first) instead of sorting by total.
+  return Object.values(groups);
 }
 
 function renderAdvanceAccounts() {
@@ -1504,7 +1510,7 @@ function buildAdvancePDF(recordsList, titleText, filenamePrefix) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.text('Total Records: ' + recordsList.length, margin + 4, 41);
-  doc.setFont('helvetica', 'normal');
+  doc.setFont('helvetica', 'bold');
   doc.setTextColor(0, 110, 182);
   doc.setFontSize(9);
   doc.text('Total Remaining: Rs. ' + total.toLocaleString('en-PK'), W - margin - 4, 41, { align: 'right' });
@@ -1564,26 +1570,26 @@ function buildAdvancePDF(recordsList, titleText, filenamePrefix) {
     doc.setTextColor(50, 50, 50);
     doc.text(doc.splitTextToSize(r.otherName, cols[2].w - 4), cols[2].x + 2, midY);
 
-    doc.setFont('helvetica', r.struck ? 'normal' : 'bold');
+    doc.setFont('helvetica', r.struck ? 'italic' : 'bold');
     doc.setFontSize(7.5);
     doc.setTextColor(139, 38, 38);
     const takenText = 'Rs. ' + r.amountTaken.toLocaleString('en-PK');
     doc.text(takenText, cols[3].x + 2, midY);
     if (r.struck) {
       const tw = doc.getTextWidth(takenText);
-      doc.setDrawColor(139, 38, 38);
+      doc.setDrawColor(0, 0, 0);
       doc.setLineWidth(0.35);
       doc.line(cols[3].x + 2, midY - 1.3, cols[3].x + 2 + tw, midY - 1.3);
     }
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont('helvetica', r.struck ? 'italic' : 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(0, 110, 182);
     const remainingText = 'Rs. ' + r.amountRemaining.toLocaleString('en-PK');
     doc.text(remainingText, cols[4].x + 2, midY);
     if (r.struck) {
       const rw = doc.getTextWidth(remainingText);
-      doc.setDrawColor(0, 110, 182);
+      doc.setDrawColor(0, 0, 0);
       doc.setLineWidth(0.35);
       doc.line(cols[4].x + 2, midY - 1.3, cols[4].x + 2 + rw, midY - 1.3);
     }

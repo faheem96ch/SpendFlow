@@ -198,7 +198,7 @@ td { padding: 10px 12px; vertical-align: middle; }
 .td-amount { font-weight: 700; color: var(--amount); white-space: nowrap; }
 .td-reason { max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.struck-amount { text-decoration: line-through; font-weight: 400; }
+.struck-amount { text-decoration: line-through; text-decoration-color: #000; font-weight: 400; font-style: italic; }
 .td-amount-taken { color: #8B2626; }
 .td-reason { cursor: pointer; }
 .td-reason.reason-expanded {
@@ -640,6 +640,27 @@ td { padding: 10px 12px; vertical-align: middle; }
   text-transform: lowercase;
   font-weight: 400;
   letter-spacing: 0;
+}
+
+/* Label shown above "Add New Entry", styled like the "My Account" page
+   title and placed on the left, in the same row as the "Main" button
+   which sits opposite it on the right (see .receivables-top-row). */
+.receivables-label {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent);
+  margin-bottom: 0;
+  text-align: left;
+}
+
+/* Row pairing the "Receivables" label with the "Main" button, raised up
+   to sit level with it instead of down next to "Add New Entry". */
+.receivables-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
 }
 
 /* ===== Card header row (title + Myself button side by side) ===== */
