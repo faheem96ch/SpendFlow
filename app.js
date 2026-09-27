@@ -258,14 +258,16 @@ function initApp() {
   document.getElementById('closeMyselfBtn').addEventListener('click', closeMyselfPage);
   document.getElementById('closeAboutBtn').addEventListener('click', closeAboutModal);
   document.getElementById('closeTrashBtn').addEventListener('click', closeTrashPage);
+  document.getElementById('closeNamePageBtn').addEventListener('click', closeNamePage);
   document.getElementById('footerToggleBtn').addEventListener('click', toggleFooter);
   document.getElementById('recordsToggleBtn').addEventListener('click', toggleRecordsSection);
 
   document.getElementById('advanceDate').value = now.toISOString().split('T')[0];
   document.getElementById('advanceTime').value = now.toTimeString().slice(0, 5);
   document.getElementById('advanceSubmitBtn').addEventListener('click', addAdvanceRecord);
-  document.getElementById('advanceToggleBtn').addEventListener('click', openAdvancePage);
   document.getElementById('closeAdvanceBtn').addEventListener('click', closeAdvancePage);
+
+  initHeaderMenu();
 
   initHeaderSearch();
   initOwnSearch();
@@ -383,6 +385,89 @@ function openAboutModal() {
 
 function closeAboutModal() {
   document.getElementById('aboutModal').style.display = 'none';
+}
+
+function openAboutSection() {
+  document.getElementById('myselfPage').style.display = 'none';
+  document.getElementById('advancePage').style.display = 'none';
+  document.getElementById('trashPage').style.display = 'none';
+  document.body.style.overflow = '';
+
+  const footer = document.getElementById('siteFooter');
+  const arrow  = document.getElementById('footerToggleArrow');
+  footer.style.display = 'block';
+  arrow.classList.add('rotated');
+
+  setTimeout(() => {
+    footer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 50);
+}
+
+function initHeaderMenu() {
+  const dotsBtn  = document.getElementById('menuDotsBtn');
+  const dropdown = document.getElementById('menuDropdown');
+  if (!dotsBtn || !dropdown) return;
+
+  dotsBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.style.display = dropdown.style.display === 'none' ? 'flex' : 'none';
+  });
+
+  document.addEventListener('click', (e) => {
+    if (dropdown.style.display !== 'none' && !dropdown.contains(e.target) && e.target !== dotsBtn) {
+      dropdown.style.display = 'none';
+    }
+  });
+
+  document.getElementById('menuReceivablesBtn').addEventListener('click', () => {
+    dropdown.style.display = 'none';
+    goToReceivables();
+  });
+  document.getElementById('menuTasksBtn').addEventListener('click', () => {
+    dropdown.style.display = 'none';
+    openAdvancePage();
+  });
+  document.getElementById('menuMainBtn').addEventListener('click', () => {
+    dropdown.style.display = 'none';
+    openMyselfPage();
+  });
+  document.getElementById('menuAboutBtn').addEventListener('click', () => {
+    dropdown.style.display = 'none';
+    openAboutSection();
+  });
+  document.getElementById('menuTrashBtn').addEventListener('click', () => {
+    dropdown.style.display = 'none';
+    openTrashPage();
+  });
+
+  document.getElementById('loggedInName').addEventListener('click', () => {
+    dropdown.style.display = 'none';
+    openNamePage();
+  });
+}
+
+function openNamePage() {
+  document.getElementById('myselfPage').style.display = 'none';
+  document.getElementById('advancePage').style.display = 'none';
+  document.getElementById('trashPage').style.display = 'none';
+  document.getElementById('namePageTitle').textContent =
+    document.getElementById('loggedInName').textContent;
+  document.getElementById('namePage').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeNamePage() {
+  document.getElementById('namePage').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function goToReceivables() {
+  document.getElementById('myselfPage').style.display = 'none';
+  document.getElementById('advancePage').style.display = 'none';
+  document.getElementById('trashPage').style.display = 'none';
+  document.getElementById('namePage').style.display = 'none';
+  document.body.style.overflow = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function openMyselfPage() {
