@@ -1148,3 +1148,21 @@ td { padding: 10px 12px; vertical-align: middle; }
   flex-basis: 100%;
   margin: 0;
 }
+
+/* ===== "Main extra" sub menu (Main 1 / Main 2) ===== */
+.menu-dropdown-chevron {
+  width: 14px;
+  height: 14px;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.menu-dropdown-item.open .menu-dropdown-chevron { transform: rotate(180deg); }
+
+.menu-dropdown-sub {
+  flex-direction: column;
+  margin: 2px 0 4px 14px;
+  padding-left: 8px;
+  border-left: 2px solid rgba(0, 0, 0, 0.18);
+}
+.menu-dropdown-sub .menu-dropdown-item { padding: 7px 10px; font-size: 0.82rem; }

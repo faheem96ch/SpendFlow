@@ -116,11 +116,13 @@ async function handleAuthSubmit() {
 
       await accountDocRef(key).set({
         name, password,
-        hostelDebt: [], hostelTrash: [], myOwnDebt: [], myAdvanceDebt: []
+        hostelDebt: [], hostelTrash: [], myOwnDebt: [], myAdvanceDebt: [],
+        myExtra1Debt: [], myExtra2Debt: []
       });
 
       currentAccountKey = key;
       records = []; trashItems = []; ownRecords = []; advanceRecords = [];
+      loadExtraRecords({});
       startSession(name);
       return;
     }
@@ -135,6 +137,7 @@ async function handleAuthSubmit() {
     trashItems     = data.hostelTrash  || [];
     ownRecords     = data.myOwnDebt    || [];
     advanceRecords = data.myAdvanceDebt || [];
+    loadExtraRecords(data);
     startSession(data.name || name);
   } catch (err) {
     console.error(err);
@@ -172,6 +175,7 @@ function showApp(name) {
   document.getElementById('loggedInName').textContent = name;
   currentFilter = null;
   ownCurrentFilter = null;
+  resetExtraFilters();
   initApp();
 }
 
@@ -190,6 +194,7 @@ async function checkExistingSession() {
         trashItems     = data.hostelTrash  || [];
         ownRecords     = data.myOwnDebt    || [];
         advanceRecords = data.myAdvanceDebt || [];
+        loadExtraRecords(data);
         showApp(data.name || name);
         return;
       }
@@ -388,6 +393,7 @@ function closeAboutModal() {
 }
 
 function openAboutSection() {
+  hideExtraPages();
   document.getElementById('myselfPage').style.display = 'none';
   document.getElementById('advancePage').style.display = 'none';
   document.getElementById('trashPage').style.display = 'none';
@@ -408,8 +414,16 @@ function initHeaderMenu() {
   const dropdown = document.getElementById('menuDropdown');
   if (!dotsBtn || !dropdown) return;
 
+  const extraBtn = document.getElementById('menuMainExtraBtn');
+  const extraSub = document.getElementById('menuMainExtraSub');
+  function collapseExtraMenu() {
+    if (extraSub) extraSub.style.display = 'none';
+    if (extraBtn) extraBtn.classList.remove('open');
+  }
+
   dotsBtn.addEventListener('click', (e) => {
     e.stopPropagation();
+    collapseExtraMenu();
     dropdown.style.display = dropdown.style.display === 'none' ? 'flex' : 'none';
   });
 
@@ -440,6 +454,24 @@ function initHeaderMenu() {
     openTrashPage();
   });
 
+  // "Main extra" — click to show the 2 accounts (Main 1 / Main 2)
+  if (extraBtn && extraSub) {
+    extraBtn.addEventListener('click', () => {
+      const isHidden = extraSub.style.display === 'none';
+      extraSub.style.display = isHidden ? 'flex' : 'none';
+      extraBtn.classList.toggle('open', isHidden);
+    });
+  }
+  EXTRA_DEFS.forEach(d => {
+    const btn = document.getElementById(d.btnId); // menuMain1Btn / menuMain2Btn
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      dropdown.style.display = 'none';
+      collapseExtraMenu();
+      EX[d.id].open();
+    });
+  });
+
   document.getElementById('loggedInName').addEventListener('click', () => {
     dropdown.style.display = 'none';
     openNamePage();
@@ -447,6 +479,7 @@ function initHeaderMenu() {
 }
 
 function openNamePage() {
+  hideExtraPages();
   document.getElementById('myselfPage').style.display = 'none';
   document.getElementById('advancePage').style.display = 'none';
   document.getElementById('trashPage').style.display = 'none';
@@ -462,6 +495,7 @@ function closeNamePage() {
 }
 
 function goToReceivables() {
+  hideExtraPages();
   document.getElementById('myselfPage').style.display = 'none';
   document.getElementById('advancePage').style.display = 'none';
   document.getElementById('trashPage').style.display = 'none';
@@ -1134,8 +1168,9 @@ function downloadOwnPersonPDF(personName) {
   buildOwnPDF(list, title, filePrefix);
 }
 
-function buildOwnPDF(recordsList, titleText, filenamePrefix) {
+function buildOwnPDF(recordsList, titleText, filenamePrefix, opts) {
   if (recordsList.length === 0) return;
+  const noAmount = !!(opts && opts.noAmount);   // 'Item Return' receipts: no Amount column, no Total Loan
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
@@ -1143,17 +1178,25 @@ function buildOwnPDF(recordsList, titleText, filenamePrefix) {
   const H      = doc.internal.pageSize.getHeight();
   const margin = 14;
   const today  = new Date().toLocaleDateString('en-PK');
-  const total  = recordsList.reduce((s, r) => s + (r.struck ? 0 : r.amount), 0);
+  const total  = recordsList.reduce((s, r) => s + (r.struck ? 0 : (r.amount || 0)), 0);
 
-  // Columns: #, Repayment, Amount, Date/Time, Reason
-  const cols = [
+  // Columns: #, Repayment, Amount, Date/Time, Reason  (Item Return: no Amount column)
+  const cols = noAmount ? [
+    { x: margin,       w: 10 },
+    { x: margin + 10,  w: 56 },
+    { x: margin + 66,  w: 30 },
+    { x: margin + 96,  w: W - margin - 96 - margin }
+  ] : [
     { x: margin,       w: 10 },
     { x: margin + 10,  w: 46 },
     { x: margin + 56,  w: 30 },
     { x: margin + 86,  w: 30 },
     { x: margin + 116, w: W - margin - 116 - margin }
   ];
-  const headers = ['No.', 'Repayment', 'Amount', 'Date / Time', 'Reason'];
+  const repayLabel = (opts && opts.repayLabel) || 'Repayment';
+  const headers = noAmount ? ['No.', repayLabel, 'Date / Time', 'Reason'] : ['No.', repayLabel, 'Amount', 'Date / Time', 'Reason'];
+  const dateCol = noAmount ? 2 : 3;
+  const reasonCol = noAmount ? 3 : 4;
 
   function pageHeader(isFirst) {
     const headerH = isFirst ? 28 : 18;
@@ -1190,7 +1233,7 @@ function buildOwnPDF(recordsList, titleText, filenamePrefix) {
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(0, 110, 182);
   doc.setFontSize(9);
-  doc.text('Total Loan: Rs. ' + total.toLocaleString('en-PK'), W - margin - 4, 41, { align: 'right' });
+  if (!noAmount) doc.text('Total Loan: Rs. ' + total.toLocaleString('en-PK'), W - margin - 4, 41, { align: 'right' });
 
   let y = 52;
 
@@ -1212,7 +1255,7 @@ function buildOwnPDF(recordsList, titleText, filenamePrefix) {
   const orderedRecords = [...recordsList].reverse();
   orderedRecords.forEach((r, idx) => {
     doc.setFontSize(7.5);
-    const reasonLines = doc.splitTextToSize(String(r.reason), cols[4].w - 4);
+    const reasonLines = doc.splitTextToSize(String(r.reason), cols[reasonCol].w - 4);
     const rowH = Math.max(9, reasonLines.length * 4.5 + 3);
 
     if (y + rowH > H - 20) {
@@ -1242,29 +1285,31 @@ function buildOwnPDF(recordsList, titleText, filenamePrefix) {
     doc.setTextColor(26, 26, 26);
     doc.text(doc.splitTextToSize(r.from, cols[1].w - 4), cols[1].x + 2, midY);
 
-    doc.setFont('helvetica', r.struck ? 'italic' : 'bold');
-    doc.setFontSize(8);
-    doc.setTextColor(0, 110, 182);
-    const amountText = 'Rs. ' + r.amount.toLocaleString('en-PK');
-    doc.text(amountText, cols[2].x + 2, midY);
-    if (r.struck) {
-      const tw = doc.getTextWidth(amountText);
-      doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.35);
-      doc.line(cols[2].x + 2, midY - 1.3, cols[2].x + 2 + tw, midY - 1.3);
+    if (!noAmount) {
+      doc.setFont('helvetica', r.struck ? 'italic' : 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(0, 110, 182);
+      const amountText = 'Rs. ' + r.amount.toLocaleString('en-PK');
+      doc.text(amountText, cols[2].x + 2, midY);
+      if (r.struck) {
+        const tw = doc.getTextWidth(amountText);
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(0.35);
+        doc.line(cols[2].x + 2, midY - 1.3, cols[2].x + 2 + tw, midY - 1.3);
+      }
     }
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(100, 100, 100);
-    doc.text(r.date, cols[3].x + 2, y + rowH / 2 - 0.5);
-    doc.text(r.time, cols[3].x + 2, y + rowH / 2 + 4);
+    doc.text(r.date, cols[dateCol].x + 2, y + rowH / 2 - 0.5);
+    doc.text(r.time, cols[dateCol].x + 2, y + rowH / 2 + 4);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(26, 26, 26);
     const reasonTopY = y + (rowH - reasonLines.length * 4.5) / 2 + 3;
-    doc.text(reasonLines, cols[4].x + 2, reasonTopY);
+    doc.text(reasonLines, cols[reasonCol].x + 2, reasonTopY);
 
     y += rowH;
   });
@@ -1709,6 +1754,420 @@ function buildAdvancePDF(recordsList, titleText, filenamePrefix) {
 }
 
 /* ============================================================
+   MAIN EXTRA — "Main 1" and "Main 2"
+   Two more copies of the "Main" (My Account) page. Each one works
+   exactly like Main: add entry, "People I Pay Back" cards, search,
+   history table, tick-as-paid, Delete -> Trash (with Restore), and
+   Download receipts (all / per person).
+   Every copy keeps its OWN data in its own Firestore field, and has
+   its own section inside Trash, so nothing is mixed with Main.
+   ============================================================ */
+const EXTRA_DEFS = [
+  { id: 'ex1', label: 'Take back', field: 'myExtra1Debt', btnId: 'menuMain1Btn', itemMode: true, takeBack: true },
+  { id: 'ex2', label: 'Item Return', field: 'myExtra2Debt', btnId: 'menuMain2Btn', itemMode: true }
+];
+const EX = {};   // EX.ex1 / EX.ex2 — also used by the inline onclick handlers below
+
+function createExtraAccount(def) {
+  const key   = def.id;                              // 'ex1' | 'ex2'  (also the trash _type)
+  const label = def.label;                           // 'Main 1' | 'Main 2'
+  const fileLabel = label.replace(/\s+/g, '_');      // 'Main_1'
+  const itemMode = !!def.itemMode;                   // no amounts, item wording
+  const takeBack = !!def.takeBack;                   // 'Take back' page wording
+  let records = [];                                  // same shape as ownRecords
+  let currentFilter = null;
+  const api = {};
+
+  const $ = (suffix) => document.getElementById(key + suffix);
+  const attr = (s) => escAttr(s).replace(/"/g, '&quot;');
+
+  /* ---------- page markup (same layout as the Main page) ---------- */
+  document.body.insertAdjacentHTML('beforeend', `
+  <div class="myself-page" id="${key}Page" style="display:none;">
+    <div class="myself-page-inner">
+      <div class="myself-page-header">
+        <h1>${takeBack ? 'take back item' : label}</h1>
+        <div class="myself-header-actions">
+          <div class="header-search" id="${key}SearchWrap">
+            <button class="search-icon-btn-light" id="${key}SearchToggleBtn" type="button" aria-label="Search ${label}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </button>
+            <div class="search-box" id="${key}SearchBox" style="display:none;">
+              <input type="text" id="${key}SearchInput" placeholder="Search by name..." autocomplete="off"/>
+              <div class="search-results" id="${key}SearchResults"></div>
+            </div>
+          </div>
+          <button class="btn-close-myself" id="${key}CloseBtn" type="button">Close ✕</button>
+        </div>
+      </div>
+
+      <section class="card">
+        <h2 class="section-title">${takeBack ? 'take back my item' : (itemMode ? 'Return an item' : 'My Loans')}</h2>
+
+        <div class="field">
+          <label for="${key}FromName">${takeBack ? 'Boiz name' : (itemMode ? 'Received From Boiz name' : 'Received From')}</label>
+          <input type="text" id="${key}FromName" placeholder="Person's name"/>
+        </div>
+
+        ${itemMode ? `
+        <div class="field">
+          <label for="${key}Reason">Purpose / Reason</label>
+          <input type="text" id="${key}Reason" placeholder="${takeBack ? 'For what was that item being returned?' : 'What was the return of the item for?'}" style="min-height:58px;padding:16px 14px;font-size:16px;"/>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="${key}Date">Date</label>
+            <input type="date" id="${key}Date"/>
+          </div>
+          <div class="field">
+            <label for="${key}Time">Time</label>
+            <input type="time" id="${key}Time"/>
+          </div>
+        </div>
+        ` : `
+        <div class="grid-3">
+          <div class="field">
+            <label for="${key}Amount">Amount (Rs.)</label>
+            <div class="prefix-wrap">
+              <span class="prefix">Rs.</span>
+              <input type="number" id="${key}Amount" placeholder="0" min="1"/>
+            </div>
+          </div>
+          <div class="field">
+            <label for="${key}Date">Date</label>
+            <input type="date" id="${key}Date"/>
+          </div>
+          <div class="field">
+            <label for="${key}Time">Time</label>
+            <input type="time" id="${key}Time"/>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="${key}Reason">Purpose / Reason</label>
+          <input type="text" id="${key}Reason" placeholder="What the money was for"/>
+        </div>
+        `}
+
+        <button class="btn-primary" id="${key}SubmitBtn">Add Entry</button>
+      </section>
+
+      <section class="card">
+        <div class="records-header">
+          <div>
+            <h2 class="section-title">${takeBack ? 'Take back from' : (itemMode ? 'People I return Back' : 'People I Pay Back')}</h2>
+            <span class="count-badge" id="${key}StudentCountBadge">0 People</span>
+          </div>
+        </div>
+        <div id="${key}AccountsArea"></div>
+      </section>
+
+      <section class="card">
+        <div class="records-header">
+          <div>
+            <h2 class="section-title" id="${key}RecordsTitle">My Loan History</h2>
+            <span class="count-badge" id="${key}CountBadge">0 Records</span>
+          </div>
+          <div class="records-header-actions">
+            <button class="btn-clear-filter" id="${key}ClearFilterBtn" style="display:none;">Show All</button>
+            <button class="btn-download-all" id="${key}DownloadAllBtn" style="display:none;">Download receipts</button>
+          </div>
+        </div>
+
+        <div id="${key}TableArea"></div>
+
+        <div class="total-bar" id="${key}TotalBar" style="display:none;">
+          <span class="total-label" id="${key}TotalLabel">Total Borrowed</span>
+          <span class="total-value" id="${key}TotalAmount">Rs. 0</span>
+        </div>
+      </section>
+    </div>
+  </div>`);
+
+  /* ---------- data ---------- */
+  function save() {
+    if (!currentAccountKey) return;
+    accountDocRef(currentAccountKey).set({ [def.field]: records }, { merge: true })
+      .catch(err => console.error('Save failed:', err));
+  }
+
+  function addRecord() {
+    const from    = $('FromName').value.trim();
+    const amount  = itemMode ? 0 : parseFloat($('Amount').value);
+    const date    = $('Date').value;
+    const time    = convertTo12hr($('Time').value);
+    const reason  = $('Reason').value.trim();
+
+    if (!from)   { alert(itemMode ? 'Plz enter who you received from.' : 'Plz enter who you borrowed from.'); return; }
+    if (!itemMode && (!amount || amount <= 0)) { alert('Plz enter a valid amount.'); return; }
+    if (!date)   { alert('Plz select a date.'); return; }
+    if (!reason) { alert('Plz enter a reason.'); return; }
+
+    records.unshift({ id: Date.now(), from, amount, date, time, reason });
+    save();
+    renderAccounts();
+    renderTable();
+    resetForm();
+    showToast();
+  }
+
+  function resetForm() {
+    if (!itemMode) $('Amount').value = '';
+    $('Reason').value = '';
+    const now = new Date();
+    $('Date').value = now.toISOString().split('T')[0];
+    $('Time').value = now.toTimeString().slice(0, 5);
+  }
+
+  // Delete -> goes to Trash first (its own "Main 1" / "Main 2" section)
+  function del(rid) {
+    if (!confirm('Move this record to Trash?')) return;
+    const r = records.find(x => x.id === rid);
+    if (!r) return;
+    records = records.filter(x => x.id !== rid);
+    trashItems.unshift({ ...r, _type: key });
+    save();
+    saveTrash();
+    renderAccounts();
+    renderTable();
+  }
+
+  // Called from the Trash page when "Restore" is pressed
+  api.restore = function (clean) {
+    records.unshift(clean);
+    save();
+    renderAccounts();
+    renderTable();
+  };
+
+  function toggleStrike(rid) {
+    const r = records.find(x => x.id === rid);
+    if (!r) return;
+    r.struck = !r.struck;
+    save();
+    renderTable();
+    renderAccounts();
+  }
+
+  /* ---------- people cards ---------- */
+  function getGroups() {
+    const groups = {};
+    records.forEach(r => {
+      const k = r.from.trim().toLowerCase();
+      if (!groups[k]) groups[k] = { name: r.from.trim(), total: 0, count: 0 };
+      if (!r.struck) groups[k].total += (r.amount || 0);
+      groups[k].count += 1;
+    });
+    return Object.values(groups);   // newest entry first
+  }
+
+  function renderAccounts() {
+    const area  = $('AccountsArea');
+    const badge = $('StudentCountBadge');
+    const groups = getGroups();
+
+    badge.textContent = groups.length + ' People';
+
+    if (groups.length === 0) {
+      area.innerHTML = '<div class="empty-state">You have not added anyone yet.</div>';
+      return;
+    }
+
+    let html = '<div class="student-grid">';
+    groups.forEach(g => {
+      const isActive = currentFilter && currentFilter.toLowerCase() === g.name.toLowerCase();
+      html += `<div class="student-account-card${isActive ? ' active' : ''}">
+        <div class="student-account-name">${esc(g.name)}</div>
+        <div class="student-account-meta">${g.count} ${g.count === 1 ? 'entry' : 'entries'}</div>
+        ${itemMode ? '' : `<div class="student-account-total">Rs. ${g.total.toLocaleString('en-PK')}</div>`}
+        <div class="student-account-actions">
+          <button class="btn-view" onclick="EX.${key}.filterByPerson('${attr(g.name)}')">View List</button>
+          <button class="btn-student-download" onclick="EX.${key}.downloadPerson('${attr(g.name)}')">Download</button>
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+    area.innerHTML = html;
+  }
+
+  function filterByPerson(name) {
+    currentFilter = name;
+    renderAccounts();
+    renderTable();
+    $('TableArea').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function clearFilter() {
+    currentFilter = null;
+    renderAccounts();
+    renderTable();
+  }
+
+  /* ---------- history table ---------- */
+  function renderTable() {
+    const area     = $('TableArea');
+    const badge    = $('CountBadge');
+    const bar      = $('TotalBar');
+    const dlBtn    = $('DownloadAllBtn');
+    const clearBtn = $('ClearFilterBtn');
+    const titleEl  = $('RecordsTitle');
+    const totalLabelEl = $('TotalLabel');
+
+    const visible = currentFilter
+      ? records.filter(r => r.from.trim().toLowerCase() === currentFilter.toLowerCase())
+      : records;
+
+    if (currentFilter) {
+      titleEl.textContent = 'Repaid ' + currentFilter;
+      totalLabelEl.textContent = 'Total Owed to ' + currentFilter;
+      clearBtn.style.display = 'inline-block';
+      dlBtn.textContent = 'Download ' + currentFilter + "'s Receipt";
+      dlBtn.onclick = () => downloadPerson(currentFilter);
+    } else {
+      titleEl.textContent = 'My Loan History';
+      totalLabelEl.textContent = 'Total Borrowed';
+      clearBtn.style.display = 'none';
+      dlBtn.textContent = 'Download receipts';
+      dlBtn.onclick = () => downloadAll();
+    }
+
+    badge.textContent = visible.length + ' Records';
+
+    if (visible.length === 0) {
+      area.innerHTML = '<div class="empty-state">No records added yet.</div>';
+      bar.style.display = 'none';
+      dlBtn.style.display = 'none';
+      return;
+    }
+
+    const total = visible.reduce((s, r) => s + (r.struck ? 0 : (r.amount || 0)), 0);
+    $('TotalAmount').textContent = 'Rs. ' + total.toLocaleString('en-PK');
+    bar.style.display = itemMode ? 'none' : 'flex';
+    dlBtn.style.display = 'inline-block';
+
+    let rows = '';
+    visible.forEach((r, i) => {
+      const serial = visible.length - i;
+      rows += `<tr>
+        <td class="td-muted">${serial}</td>
+        <td class="td-bold">${esc(r.from)}</td>
+        ${itemMode ? '' : `<td class="td-amount${r.struck ? ' struck-amount' : ''}">Rs. ${(r.amount || 0).toLocaleString('en-PK')}</td>`}
+        <td class="td-reason" title="${esc(r.reason)}" onclick="this.classList.toggle('reason-expanded')">${esc(r.reason)}</td>
+        <td class="td-muted" style="white-space:nowrap;">${r.date} &nbsp; ${r.time}</td>
+        <td class="td-check"><input type="checkbox" class="strike-check" ${r.struck ? 'checked' : ''} onchange="EX.${key}.toggleStrike(${r.id})" title="Mark as settled"/></td>
+        <td><button class="btn-del" onclick="EX.${key}.del(${r.id})">Delete</button></td>
+      </tr>`;
+    });
+
+    area.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr>
+        <th>#</th><th>Repaid</th>${itemMode ? '' : '<th>Amount</th>'}<th>Reason</th><th>Date / Time</th><th>Paid</th><th></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+  }
+
+  /* ---------- Download receipts (same PDF design as Main) ---------- */
+  function downloadAll() {
+    const list = currentFilter
+      ? records.filter(r => r.from.trim().toLowerCase() === currentFilter.toLowerCase())
+      : records;
+    const retWord = takeBack ? 'Item Taken Back ' : (itemMode ? 'Item Return to ' : 'Payment Return to ');
+    const title = currentFilter ? retWord + currentFilter : (takeBack ? 'Item Taken Back' : (itemMode ? label + ' Receipt' : label + ' Loans Receipt'));
+    const filePrefix = currentFilter
+      ? fileLabel + '_' + currentFilter.replace(/\s+/g, '_') + '_Owed_Receipt'
+      : fileLabel + (itemMode ? '_Receipt' : '_Loans_Receipt');
+    buildOwnPDF(list, title, filePrefix, { noAmount: itemMode, repayLabel: takeBack ? 'Taken back from' : null });
+  }
+
+  function downloadPerson(name) {
+    const list = records.filter(r => r.from.trim().toLowerCase() === name.toLowerCase());
+    if (list.length === 0) return;
+    buildOwnPDF(list, (takeBack ? 'Item Taken Back ' : (itemMode ? 'Item Return to ' : 'Payment Return to ')) + name,
+      fileLabel + '_' + name.replace(/\s+/g, '_') + '_Owed_Receipt', { noAmount: itemMode, repayLabel: takeBack ? 'Taken back from' : null });
+  }
+
+  /* ---------- search (only inside this account) ---------- */
+  const searchWrap    = $('SearchWrap');
+  const searchBox     = $('SearchBox');
+  const searchInput   = $('SearchInput');
+  const searchResults = $('SearchResults');
+
+  $('SearchToggleBtn').addEventListener('click', () => {
+    const isHidden = searchBox.style.display === 'none';
+    searchBox.style.display = isHidden ? 'block' : 'none';
+    if (isHidden) {
+      searchInput.value = '';
+      searchResults.innerHTML = '';
+      searchInput.focus();
+    }
+  });
+
+  searchInput.addEventListener('input', () => {
+    const q = searchInput.value.trim().toLowerCase();
+    if (!q) { searchResults.innerHTML = ''; return; }
+
+    const matches = getGroups().filter(g => g.name.toLowerCase().includes(q));
+    if (matches.length === 0) {
+      searchResults.innerHTML = '<div class="search-empty">No matching account found.</div>';
+      return;
+    }
+    searchResults.innerHTML = matches.map(g => `
+      <div class="search-result-item" onclick="EX.${key}.selectSearch('${attr(g.name)}')">
+        <span class="search-result-name">${esc(g.name)}</span>
+        ${itemMode ? '' : `<span class="search-result-total">Rs. ${g.total.toLocaleString('en-PK')}</span>`}
+      </div>
+    `).join('');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!searchWrap.contains(e.target)) searchBox.style.display = 'none';
+  });
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') searchBox.style.display = 'none';
+  });
+
+  /* ---------- wiring ---------- */
+  $('SubmitBtn').addEventListener('click', addRecord);
+  $('CloseBtn').addEventListener('click', () => api.close());
+  $('ClearFilterBtn').addEventListener('click', clearFilter);
+  resetForm();
+
+  api.open = function () {
+    $('Page').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    renderAccounts();
+    renderTable();
+  };
+  api.close = function () {
+    $('Page').style.display = 'none';
+    document.body.style.overflow = '';
+  };
+  api.setRecords   = (arr) => { records = Array.isArray(arr) ? arr : []; currentFilter = null; };
+  api.resetFilter  = () => { currentFilter = null; };
+  api.selectSearch = (name) => { searchBox.style.display = 'none'; filterByPerson(name); };
+  api.filterByPerson = filterByPerson;
+  api.downloadPerson = downloadPerson;
+  api.toggleStrike   = toggleStrike;
+  api.del            = del;
+  return api;
+}
+
+EXTRA_DEFS.forEach(def => { EX[def.id] = createExtraAccount(def); });
+
+// Called when an account is loaded (login / session restore / new sign-up)
+function loadExtraRecords(data) {
+  EXTRA_DEFS.forEach(d => EX[d.id].setRecords(data && data[d.field]));
+}
+function resetExtraFilters() {
+  EXTRA_DEFS.forEach(d => EX[d.id].resetFilter());
+}
+function hideExtraPages() {
+  EXTRA_DEFS.forEach(d => { document.getElementById(d.id + 'Page').style.display = 'none'; });
+}
+
+/* ============================================================
    TRASH — deleted records land here first, split into 3
    portions by where they came from: "Text Note" (main
    Candidate Accounts records), "My Account" (own records),
@@ -1735,6 +2194,10 @@ function closeTrashPage() {
 function renderTrash() {
   renderTrashPortion('main',    'trashMainArea',     'trashMainCountBadge');
   renderTrashPortion('own',     'trashOwnArea',       'trashOwnCountBadge');
+  EXTRA_DEFS.forEach(d => {
+    const cap = d.id.charAt(0).toUpperCase() + d.id.slice(1);   // ex1 -> Ex1
+    renderTrashPortion(d.id, 'trash' + cap + 'Area', 'trash' + cap + 'CountBadge');
+  });
   renderTrashPortion('advance', 'trashAdvanceArea',   'trashAdvanceCountBadge');
 }
 
@@ -1753,17 +2216,19 @@ function renderTrashPortion(type, areaId, badgeId) {
   let rows = '';
   items.forEach((r, i) => {
     const serial   = items.length - i;
-    const nameCell = type === 'own' ? esc(r.from)
+    const isOwnShape = type === 'own' || !!EX[type];   // Main 1 / Main 2 use the same record shape as Main
+    const nameCell = isOwnShape ? esc(r.from)
       : type === 'advance' ? (esc(r.name) + ' &rarr; ' + esc(r.otherName))
       : (esc(r.student) + ' &rarr; ' + esc(r.lender));
-    const amountVal = type === 'advance' ? r.amountTaken : r.amount;
+    const noAmt = !!(EX[type] && EXTRA_DEFS.find(d => d.id === type).itemMode);
+    const amountVal = type === 'advance' ? r.amountTaken : (r.amount || 0);
     const remainingCell = type === 'advance'
       ? `<td class="td-amount${r.struck ? ' struck-amount' : ''}">Rs. ${r.amountRemaining.toLocaleString('en-PK')}</td>`
       : '';
     rows += `<tr>
       <td class="td-muted">${serial}</td>
       <td class="td-bold">${nameCell}</td>
-      <td class="td-amount${r.struck ? ' struck-amount' : ''}">Rs. ${amountVal.toLocaleString('en-PK')}</td>
+      ${noAmt ? '' : `<td class="td-amount${r.struck ? ' struck-amount' : ''}">Rs. ${amountVal.toLocaleString('en-PK')}</td>`}
       ${remainingCell}
       <td class="td-reason" title="${esc(r.reason)}" onclick="this.classList.toggle('reason-expanded')">${esc(r.reason)}</td>
       <td class="td-muted" style="white-space:nowrap;">${r.date} &nbsp; ${r.time}</td>
@@ -1774,7 +2239,8 @@ function renderTrashPortion(type, areaId, badgeId) {
     </tr>`;
   });
 
-  const amountHeader = type === 'advance' ? '<th>Amount Taken</th><th>Amount Remaining</th>' : '<th>Amount</th>';
+  const noAmtHdr = !!(EX[type] && EXTRA_DEFS.find(d => d.id === type).itemMode);
+  const amountHeader = type === 'advance' ? '<th>Amount Taken</th><th>Amount Remaining</th>' : (noAmtHdr ? '' : '<th>Amount</th>');
 
   area.innerHTML = `<div class="table-wrap"><table>
     <thead><tr>
@@ -1794,6 +2260,8 @@ function restoreFromTrash(id) {
     saveOwn();
     renderOwnAccounts();
     renderOwnTable();
+  } else if (EX[_type]) {
+    EX[_type].restore(clean);
   } else if (_type === 'advance') {
     advanceRecords.unshift(clean);
     saveAdvance();
