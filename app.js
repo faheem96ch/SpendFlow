@@ -1194,7 +1194,8 @@ function buildOwnPDF(recordsList, titleText, filenamePrefix, opts) {
     { x: margin + 116, w: W - margin - 116 - margin }
   ];
   const repayLabel = (opts && opts.repayLabel) || 'Repayment';
-  const headers = noAmount ? ['No.', repayLabel, 'Date / Time', 'Reason'] : ['No.', repayLabel, 'Amount', 'Date / Time', 'Reason'];
+  const reasonLabel = (opts && opts.reasonLabel) || 'Reason';
+  const headers = noAmount ? ['No.', repayLabel, 'Date / Time', reasonLabel] : ['No.', repayLabel, 'Amount', 'Date / Time', reasonLabel];
   const dateCol = noAmount ? 2 : 3;
   const reasonCol = noAmount ? 3 : 4;
 
@@ -1764,7 +1765,8 @@ function buildAdvancePDF(recordsList, titleText, filenamePrefix) {
    ============================================================ */
 const EXTRA_DEFS = [
   { id: 'ex1', label: 'Take back', field: 'myExtra1Debt', btnId: 'menuMain1Btn', itemMode: true, takeBack: true },
-  { id: 'ex2', label: 'Item Return', field: 'myExtra2Debt', btnId: 'menuMain2Btn', itemMode: true }
+  { id: 'ex2', label: 'Item Return', field: 'myExtra2Debt', btnId: 'menuMain2Btn', itemMode: true },
+  { id: 'ex3', label: 'Note', field: 'myExtra3Debt', btnId: 'menuNoteBtn', itemMode: true, noteMode: true }
 ];
 const EX = {};   // EX.ex1 / EX.ex2 — also used by the inline onclick handlers below
 
@@ -1774,6 +1776,7 @@ function createExtraAccount(def) {
   const fileLabel = label.replace(/\s+/g, '_');      // 'Main_1'
   const itemMode = !!def.itemMode;                   // no amounts, item wording
   const takeBack = !!def.takeBack;                   // 'Take back' page wording
+  const noteMode = !!def.noteMode;                   // 'Note' page: only a note text, auto-named Note 1, Note 2...
   let records = [];                                  // same shape as ownRecords
   let currentFilter = null;
   const api = {};
@@ -1786,7 +1789,7 @@ function createExtraAccount(def) {
   <div class="myself-page" id="${key}Page" style="display:none;">
     <div class="myself-page-inner">
       <div class="myself-page-header">
-        <h1>${takeBack ? 'take back item' : label}</h1>
+        <h1>${noteMode ? 'My Text Note' : (takeBack ? 'take back item' : label)}</h1>
         <div class="myself-header-actions">
           <div class="header-search" id="${key}SearchWrap">
             <button class="search-icon-btn-light" id="${key}SearchToggleBtn" type="button" aria-label="Search ${label}">
@@ -1802,17 +1805,18 @@ function createExtraAccount(def) {
       </div>
 
       <section class="card">
-        <h2 class="section-title">${takeBack ? 'take back my item' : (itemMode ? 'Return an item' : 'My Loans')}</h2>
+        <h2 class="section-title">${noteMode ? 'My Notes' : (takeBack ? 'take back my item' : (itemMode ? 'Return an item' : 'My Loans'))}</h2>
 
+        ${noteMode ? '' : `
         <div class="field">
           <label for="${key}FromName">${takeBack ? 'Boiz name' : (itemMode ? 'Received From Boiz name' : 'Received From')}</label>
           <input type="text" id="${key}FromName" placeholder="Person's name"/>
-        </div>
+        </div>`}
 
         ${itemMode ? `
         <div class="field">
-          <label for="${key}Reason">Purpose / Reason</label>
-          <input type="text" id="${key}Reason" placeholder="${takeBack ? 'For what was that item being returned?' : 'What was the return of the item for?'}" style="min-height:58px;padding:16px 14px;font-size:16px;"/>
+          <label for="${key}Reason">${noteMode ? 'Add Note' : 'Purpose / Reason'}</label>
+          <input type="text" id="${key}Reason" placeholder="${noteMode ? 'Type Note Text' : (takeBack ? 'For what was that item being returned?' : 'What was the return of the item for?')}" style="min-height:58px;padding:16px 14px;${noteMode ? '' : 'font-size:16px;'}"/>
         </div>
 
         <div class="grid-2">
@@ -1856,8 +1860,8 @@ function createExtraAccount(def) {
       <section class="card">
         <div class="records-header">
           <div>
-            <h2 class="section-title">${takeBack ? 'Take back from' : (itemMode ? 'People I return Back' : 'People I Pay Back')}</h2>
-            <span class="count-badge" id="${key}StudentCountBadge">0 People</span>
+            <h2 class="section-title">${noteMode ? 'My Notes List' : (takeBack ? 'Take back from' : (itemMode ? 'People I return Back' : 'People I Pay Back'))}</h2>
+            <span class="count-badge" id="${key}StudentCountBadge">${noteMode ? '0 Notes' : '0 People'}</span>
           </div>
         </div>
         <div id="${key}AccountsArea"></div>
@@ -1866,7 +1870,7 @@ function createExtraAccount(def) {
       <section class="card">
         <div class="records-header">
           <div>
-            <h2 class="section-title" id="${key}RecordsTitle">My Loan History</h2>
+            <h2 class="section-title" id="${key}RecordsTitle">${noteMode ? 'My Notes History' : 'My Loan History'}</h2>
             <span class="count-badge" id="${key}CountBadge">0 Records</span>
           </div>
           <div class="records-header-actions">
@@ -1893,7 +1897,7 @@ function createExtraAccount(def) {
   }
 
   function addRecord() {
-    const from    = $('FromName').value.trim();
+    const from    = noteMode ? ('Note ' + nextNoteNumber()) : $('FromName').value.trim();
     const amount  = itemMode ? 0 : parseFloat($('Amount').value);
     const date    = $('Date').value;
     const time    = convertTo12hr($('Time').value);
@@ -1902,7 +1906,7 @@ function createExtraAccount(def) {
     if (!from)   { alert(itemMode ? 'Plz enter who you received from.' : 'Plz enter who you borrowed from.'); return; }
     if (!itemMode && (!amount || amount <= 0)) { alert('Plz enter a valid amount.'); return; }
     if (!date)   { alert('Plz select a date.'); return; }
-    if (!reason) { alert('Plz enter a reason.'); return; }
+    if (!reason) { alert(noteMode ? 'Plz type the note text.' : 'Plz enter a reason.'); return; }
 
     records.unshift({ id: Date.now(), from, amount, date, time, reason });
     save();
@@ -1910,6 +1914,19 @@ function createExtraAccount(def) {
     renderTable();
     resetForm();
     showToast();
+  }
+
+  // Note account: every new entry becomes its own account -> Note 1, Note 2, Note 3 ...
+  // (numbers never repeat, even if an earlier note is sitting in Trash)
+  function nextNoteNumber() {
+    let max = 0;
+    const scan = (r) => {
+      const m = /^Note (\d+)$/i.exec(String(r.from || '').trim());
+      if (m) max = Math.max(max, parseInt(m[1], 10));
+    };
+    records.forEach(scan);
+    trashItems.filter(t => t._type === key).forEach(scan);
+    return max + 1;
   }
 
   function resetForm() {
@@ -1967,10 +1984,10 @@ function createExtraAccount(def) {
     const badge = $('StudentCountBadge');
     const groups = getGroups();
 
-    badge.textContent = groups.length + ' People';
+    badge.textContent = groups.length + (noteMode ? ' Notes' : ' People');
 
     if (groups.length === 0) {
-      area.innerHTML = '<div class="empty-state">You have not added anyone yet.</div>';
+      area.innerHTML = '<div class="empty-state">' + (noteMode ? 'You have not added any note yet.' : 'You have not added anyone yet.') + '</div>';
       return;
     }
 
@@ -2019,13 +2036,13 @@ function createExtraAccount(def) {
       : records;
 
     if (currentFilter) {
-      titleEl.textContent = 'Repaid ' + currentFilter;
+      titleEl.textContent = (noteMode ? 'Note To ' : 'Repaid ') + currentFilter;
       totalLabelEl.textContent = 'Total Owed to ' + currentFilter;
       clearBtn.style.display = 'inline-block';
       dlBtn.textContent = 'Download ' + currentFilter + "'s Receipt";
       dlBtn.onclick = () => downloadPerson(currentFilter);
     } else {
-      titleEl.textContent = 'My Loan History';
+      titleEl.textContent = noteMode ? 'My Notes History' : 'My Loan History';
       totalLabelEl.textContent = 'Total Borrowed';
       clearBtn.style.display = 'none';
       dlBtn.textContent = 'Download receipts';
@@ -2062,30 +2079,38 @@ function createExtraAccount(def) {
 
     area.innerHTML = `<div class="table-wrap"><table>
       <thead><tr>
-        <th>#</th><th>Repaid</th>${itemMode ? '' : '<th>Amount</th>'}<th>Reason</th><th>Date / Time</th><th>Paid</th><th></th>
+        <th>#</th><th>${noteMode ? 'Note No.' : 'Repaid'}</th>${itemMode ? '' : '<th>Amount</th>'}<th>${noteMode ? 'Note' : 'Reason'}</th><th>Date / Time</th><th>Paid</th><th></th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table></div>`;
   }
 
   /* ---------- Download receipts (same PDF design as Main) ---------- */
+  function pdfOpts() {
+    return {
+      noAmount: itemMode,
+      repayLabel: noteMode ? 'Note No.' : (takeBack ? 'Taken back from' : null),
+      reasonLabel: noteMode ? 'Note' : null
+    };
+  }
+
   function downloadAll() {
     const list = currentFilter
       ? records.filter(r => r.from.trim().toLowerCase() === currentFilter.toLowerCase())
       : records;
-    const retWord = takeBack ? 'Item Taken Back ' : (itemMode ? 'Item Return to ' : 'Payment Return to ');
-    const title = currentFilter ? retWord + currentFilter : (takeBack ? 'Item Taken Back' : (itemMode ? label + ' Receipt' : label + ' Loans Receipt'));
+    const retWord = noteMode ? 'Note To ' : (takeBack ? 'Item Taken Back ' : (itemMode ? 'Item Return to ' : 'Payment Return to '));
+    const title = currentFilter ? retWord + currentFilter : (noteMode ? 'My Notes Receipt' : (takeBack ? 'Item Taken Back' : (itemMode ? label + ' Receipt' : label + ' Loans Receipt')));
     const filePrefix = currentFilter
-      ? fileLabel + '_' + currentFilter.replace(/\s+/g, '_') + '_Owed_Receipt'
+      ? fileLabel + '_' + currentFilter.replace(/\s+/g, '_') + (noteMode ? '_Receipt' : '_Owed_Receipt')
       : fileLabel + (itemMode ? '_Receipt' : '_Loans_Receipt');
-    buildOwnPDF(list, title, filePrefix, { noAmount: itemMode, repayLabel: takeBack ? 'Taken back from' : null });
+    buildOwnPDF(list, title, filePrefix, pdfOpts());
   }
 
   function downloadPerson(name) {
     const list = records.filter(r => r.from.trim().toLowerCase() === name.toLowerCase());
     if (list.length === 0) return;
-    buildOwnPDF(list, (takeBack ? 'Item Taken Back ' : (itemMode ? 'Item Return to ' : 'Payment Return to ')) + name,
-      fileLabel + '_' + name.replace(/\s+/g, '_') + '_Owed_Receipt', { noAmount: itemMode, repayLabel: takeBack ? 'Taken back from' : null });
+    buildOwnPDF(list, (noteMode ? 'Note To ' : (takeBack ? 'Item Taken Back ' : (itemMode ? 'Item Return to ' : 'Payment Return to '))) + name,
+      fileLabel + '_' + name.replace(/\s+/g, '_') + (noteMode ? '_Receipt' : '_Owed_Receipt'), pdfOpts());
   }
 
   /* ---------- search (only inside this account) ---------- */
@@ -2180,6 +2205,23 @@ function saveTrash() {
     .catch(err => console.error('Save failed:', err));
 }
 
+// Arrow on every Trash section: click -> show / hide all deleted records of that section
+function initTrashToggles() {
+  document.querySelectorAll('#trashPage .trash-arrow-btn').forEach(btn => {
+    const area = document.getElementById(btn.dataset.target);
+    if (!area) return;
+    const header = btn.closest('.records-header');
+    const arrow = btn.querySelector('.footer-toggle-arrow');
+    area.style.display = 'none';                    // collapsed until the arrow is pressed
+    header.addEventListener('click', () => {
+      const open = area.style.display === 'none';
+      area.style.display = open ? 'block' : 'none';
+      arrow.classList.toggle('rotated', open);
+    });
+  });
+}
+initTrashToggles();
+
 function openTrashPage() {
   document.getElementById('trashPage').style.display = 'block';
   document.body.style.overflow = 'hidden';
@@ -2240,11 +2282,12 @@ function renderTrashPortion(type, areaId, badgeId) {
   });
 
   const noAmtHdr = !!(EX[type] && EXTRA_DEFS.find(d => d.id === type).itemMode);
+  const isNoteType = !!(EX[type] && EXTRA_DEFS.find(d => d.id === type).noteMode);
   const amountHeader = type === 'advance' ? '<th>Amount Taken</th><th>Amount Remaining</th>' : (noAmtHdr ? '' : '<th>Amount</th>');
 
   area.innerHTML = `<div class="table-wrap"><table>
     <thead><tr>
-      <th>#</th><th>Name</th>${amountHeader}<th>Reason</th><th>Date / Time</th><th></th>
+      <th>#</th><th>${isNoteType ? 'Note No.' : 'Name'}</th>${amountHeader}<th>${isNoteType ? 'Note' : 'Reason'}</th><th>Date / Time</th><th></th>
     </tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;

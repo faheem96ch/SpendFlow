@@ -103,6 +103,10 @@
                   Item Return
                 </button>
               </div>
+              <button class="menu-dropdown-item" id="menuNoteBtn" type="button">
+                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+                Note
+              </button>
               <button class="menu-dropdown-item" id="menuTrashBtn" type="button">
                 <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
                 Trash
@@ -413,9 +417,12 @@
       <section class="card">
         <div class="records-header">
           <div>
-            <h2 class="section-title">Text Note</h2>
+            <h2 class="section-title">Receivables</h2>
             <span class="count-badge" id="trashMainCountBadge">0 Items</span>
           </div>
+          <button class="footer-toggle-btn trash-arrow-btn" type="button" data-target="trashMainArea" aria-label="Show / hide deleted records">
+            <svg class="footer-toggle-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
         </div>
         <div id="trashMainArea"></div>
       </section>
@@ -426,6 +433,9 @@
             <h2 class="section-title">My Account</h2>
             <span class="count-badge" id="trashOwnCountBadge">0 Items</span>
           </div>
+          <button class="footer-toggle-btn trash-arrow-btn" type="button" data-target="trashOwnArea" aria-label="Show / hide deleted records">
+            <svg class="footer-toggle-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
         </div>
         <div id="trashOwnArea"></div>
       </section>
@@ -436,6 +446,9 @@
             <h2 class="section-title">Take back</h2>
             <span class="count-badge" id="trashEx1CountBadge">0 Items</span>
           </div>
+          <button class="footer-toggle-btn trash-arrow-btn" type="button" data-target="trashEx1Area" aria-label="Show / hide deleted records">
+            <svg class="footer-toggle-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
         </div>
         <div id="trashEx1Area"></div>
       </section>
@@ -446,8 +459,24 @@
             <h2 class="section-title">Item Return</h2>
             <span class="count-badge" id="trashEx2CountBadge">0 Items</span>
           </div>
+          <button class="footer-toggle-btn trash-arrow-btn" type="button" data-target="trashEx2Area" aria-label="Show / hide deleted records">
+            <svg class="footer-toggle-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
         </div>
         <div id="trashEx2Area"></div>
+      </section>
+
+      <section class="card">
+        <div class="records-header">
+          <div>
+            <h2 class="section-title">Note</h2>
+            <span class="count-badge" id="trashEx3CountBadge">0 Items</span>
+          </div>
+          <button class="footer-toggle-btn trash-arrow-btn" type="button" data-target="trashEx3Area" aria-label="Show / hide deleted records">
+            <svg class="footer-toggle-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+        </div>
+        <div id="trashEx3Area"></div>
       </section>
 
       <section class="card">
@@ -456,6 +485,9 @@
             <h2 class="section-title">Tasks</h2>
             <span class="count-badge" id="trashAdvanceCountBadge">0 Items</span>
           </div>
+          <button class="footer-toggle-btn trash-arrow-btn" type="button" data-target="trashAdvanceArea" aria-label="Show / hide deleted records">
+            <svg class="footer-toggle-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
         </div>
         <div id="trashAdvanceArea"></div>
       </section>
@@ -574,7 +606,6 @@
       <h2 class="footer-title">Khata - Expenses Register</h2>
       <p class="footer-tagline">Apka udhaar, apka hisaab</p>
       <p class="footer-desc">"Khata" ek aasan aur mufeed tareeqa hai un logon ke liye jo doosron ko udhaar dete hain aur baad mein bhool jate hain kis ne kitna udhaar liya tha. Is website ke zariye aap har us shaks ka naam register kar sakte hain jisay aap ne udhaar diya hai, aur uski receipt bhi download kar ke unhe bhej sakte hain — taake koi confusion na ho.</p>
-      <p class="footer-desc">Iske ilawa, "My Account" feature aap ko un logon ka record rakhne mein madad karta hai jinhe aap advance (paishgi) dete hain — jinke naam aap bhool sakte hain. Aap unka naam likh kar record save kar sakte hain, aur receipt download kar ke apne paas mehfooz rakh sakte hain.</p>
       <p class="footer-desc">Khata ka maqsad hai aapke lain-dain (transactions) ko organized, transparent aur stress-free banana — taake na koi udhaar bhoole, na koi galat fehmi ho.</p>
     </div>
   </div>

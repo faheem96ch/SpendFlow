@@ -1166,3 +1166,9 @@ td { padding: 10px 12px; vertical-align: middle; }
   border-left: 2px solid rgba(0, 0, 0, 0.18);
 }
 .menu-dropdown-sub .menu-dropdown-item { padding: 7px 10px; font-size: 0.82rem; }
+
+/* ===== TRASH: arrow on every section (click = show / hide deleted records) ===== */
+#trashPage .records-header { flex-direction: row; align-items: center; cursor: pointer; }
+#trashPage .records-header > div { flex: 1; min-width: 0; }
+.trash-arrow-btn { margin: 0; flex-shrink: 0; width: 36px; height: 36px; }
+.trash-arrow-btn .footer-toggle-arrow { width: 18px; height: 18px; }
