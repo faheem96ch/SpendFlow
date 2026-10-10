@@ -72,22 +72,30 @@
             </button>
             <div class="menu-dropdown" id="menuDropdown" style="display:none;">
               <div class="menu-dropdown-name" id="loggedInName"></div>
-              <button class="menu-dropdown-item" id="menuReceivablesBtn" type="button">
-                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                Receivables
-              </button>
               <button class="menu-dropdown-item" id="menuTasksBtn" type="button">
                 <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="6" height="6" rx="1"/><path d="M3 17h6v4H3z"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>
                 Tasks
               </button>
-              <button class="menu-dropdown-item" id="menuMainBtn" type="button">
-                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
-                Main
-              </button>
+              
               <button class="menu-dropdown-item" id="menuAboutBtn" type="button">
                 <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16.5"/><circle cx="12" cy="7.8" r="0.9" fill="currentColor" stroke="none"/></svg>
                 About
               </button>
+              <button class="menu-dropdown-item" id="menuMoneyTrackBtn" type="button">
+                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><circle cx="17" cy="15" r="1.2" fill="currentColor" stroke="none"/><path d="M6 6V4.5A1.5 1.5 0 0 1 7.5 3H18"/></svg>
+                MoneyTrack
+                <svg class="menu-dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="menu-dropdown-sub" id="menuMoneyTrackSub" style="display:none;">
+                <button class="menu-dropdown-item" id="menuReceivablesBtn" type="button">
+                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                Receivables
+              </button>
+                <button class="menu-dropdown-item" id="menuMainBtn" type="button">
+                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+                Main
+              </button>
+              </div>
               <button class="menu-dropdown-item" id="menuMainExtraBtn" type="button">
                 <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
                 Items
@@ -95,17 +103,17 @@
               </button>
               <div class="menu-dropdown-sub" id="menuMainExtraSub" style="display:none;">
                 <button class="menu-dropdown-item" id="menuMain1Btn" type="button">
-                  <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+                  <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
                   Take back
                 </button>
                 <button class="menu-dropdown-item" id="menuMain2Btn" type="button">
-                  <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+                  <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg>
                   Item Return
                 </button>
               </div>
               <button class="menu-dropdown-item" id="menuNoteBtn" type="button">
-                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
-                Note
+                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+                Note Text
               </button>
               <button class="menu-dropdown-item" id="menuTrashBtn" type="button">
                 <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>

@@ -420,10 +420,17 @@ function initHeaderMenu() {
     if (extraSub) extraSub.style.display = 'none';
     if (extraBtn) extraBtn.classList.remove('open');
   }
+  const moneyBtn = document.getElementById('menuMoneyTrackBtn');
+  const moneySub = document.getElementById('menuMoneyTrackSub');
+  function collapseMoneyMenu() {
+    if (moneySub) moneySub.style.display = 'none';
+    if (moneyBtn) moneyBtn.classList.remove('open');
+  }
 
   dotsBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     collapseExtraMenu();
+    collapseMoneyMenu();
     dropdown.style.display = dropdown.style.display === 'none' ? 'flex' : 'none';
   });
 
@@ -435,6 +442,7 @@ function initHeaderMenu() {
 
   document.getElementById('menuReceivablesBtn').addEventListener('click', () => {
     dropdown.style.display = 'none';
+    collapseMoneyMenu();
     goToReceivables();
   });
   document.getElementById('menuTasksBtn').addEventListener('click', () => {
@@ -443,6 +451,7 @@ function initHeaderMenu() {
   });
   document.getElementById('menuMainBtn').addEventListener('click', () => {
     dropdown.style.display = 'none';
+    collapseMoneyMenu();
     openMyselfPage();
   });
   document.getElementById('menuAboutBtn').addEventListener('click', () => {
@@ -460,6 +469,14 @@ function initHeaderMenu() {
       const isHidden = extraSub.style.display === 'none';
       extraSub.style.display = isHidden ? 'flex' : 'none';
       extraBtn.classList.toggle('open', isHidden);
+    });
+  }
+  // "MoneyTrack" - click to show Receivable / Main
+  if (moneyBtn && moneySub) {
+    moneyBtn.addEventListener('click', () => {
+      const isHidden = moneySub.style.display === 'none';
+      moneySub.style.display = isHidden ? 'flex' : 'none';
+      moneyBtn.classList.toggle('open', isHidden);
     });
   }
   EXTRA_DEFS.forEach(d => {
@@ -1807,11 +1824,10 @@ function createExtraAccount(def) {
       <section class="card">
         <h2 class="section-title">${noteMode ? 'My Notes' : (takeBack ? 'take back my item' : (itemMode ? 'Return an item' : 'My Loans'))}</h2>
 
-        ${noteMode ? '' : `
         <div class="field">
-          <label for="${key}FromName">${takeBack ? 'Boiz name' : (itemMode ? 'Received From Boiz name' : 'Received From')}</label>
-          <input type="text" id="${key}FromName" placeholder="Person's name"/>
-        </div>`}
+          <label for="${key}FromName">${noteMode ? 'Collection' : (takeBack ? 'Boiz name' : (itemMode ? 'Received From Boiz name' : 'Received From'))}</label>
+          <input type="text" id="${key}FromName" placeholder="${noteMode ? 'Collection name ' : "Person's name"}"/>
+        </div>
 
         ${itemMode ? `
         <div class="field">
@@ -1897,7 +1913,7 @@ function createExtraAccount(def) {
   }
 
   function addRecord() {
-    const from    = noteMode ? ('Note ' + nextNoteNumber()) : $('FromName').value.trim();
+    const from    = noteMode ? ($('FromName').value.trim() || ('Note ' + nextNoteNumber())) : $('FromName').value.trim();
     const amount  = itemMode ? 0 : parseFloat($('Amount').value);
     const date    = $('Date').value;
     const time    = convertTo12hr($('Time').value);
@@ -1931,6 +1947,7 @@ function createExtraAccount(def) {
 
   function resetForm() {
     if (!itemMode) $('Amount').value = '';
+    if (noteMode) $('FromName').value = '';
     $('Reason').value = '';
     const now = new Date();
     $('Date').value = now.toISOString().split('T')[0];
@@ -2079,7 +2096,7 @@ function createExtraAccount(def) {
 
     area.innerHTML = `<div class="table-wrap"><table>
       <thead><tr>
-        <th>#</th><th>${noteMode ? 'Note No.' : 'Repaid'}</th>${itemMode ? '' : '<th>Amount</th>'}<th>${noteMode ? 'Note' : 'Reason'}</th><th>Date / Time</th><th>Paid</th><th></th>
+        <th>#</th><th>${noteMode ? 'Collection' : 'Repaid'}</th>${itemMode ? '' : '<th>Amount</th>'}<th>${noteMode ? 'Note' : 'Reason'}</th><th>Date / Time</th><th>Paid</th><th></th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table></div>`;
@@ -2089,7 +2106,7 @@ function createExtraAccount(def) {
   function pdfOpts() {
     return {
       noAmount: itemMode,
-      repayLabel: noteMode ? 'Note No.' : (takeBack ? 'Taken back from' : null),
+      repayLabel: noteMode ? 'Collection' : (takeBack ? 'Taken back from' : null),
       reasonLabel: noteMode ? 'Note' : null
     };
   }
@@ -2287,7 +2304,7 @@ function renderTrashPortion(type, areaId, badgeId) {
 
   area.innerHTML = `<div class="table-wrap"><table>
     <thead><tr>
-      <th>#</th><th>${isNoteType ? 'Note No.' : 'Name'}</th>${amountHeader}<th>${isNoteType ? 'Note' : 'Reason'}</th><th>Date / Time</th><th></th>
+      <th>#</th><th>${isNoteType ? 'Collection' : 'Name'}</th>${amountHeader}<th>${isNoteType ? 'Note' : 'Reason'}</th><th>Date / Time</th><th></th>
     </tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
