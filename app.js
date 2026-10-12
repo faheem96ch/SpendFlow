@@ -735,6 +735,15 @@ function showToast() {
   setTimeout(() => t.classList.remove('show'), 2400);
 }
 
+function wrapMultiline(doc, text, width) {
+  const out = [];
+  String(text == null ? '' : text).split(/\r\n|\r|\n/).forEach(line => {
+    if (line === '') { out.push(''); return; }
+    out.push(...doc.splitTextToSize(line, width));
+  });
+  return out.length ? out : [''];
+}
+
 function esc(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
@@ -851,7 +860,7 @@ function buildPDF(recordsList, titleText, filenamePrefix) {
   orderedRecords.forEach((r, idx) => {
     // Calculate row height based on wrapped reason text
     doc.setFontSize(7.5);
-    const reasonLines = doc.splitTextToSize(String(r.reason), cols[5].w - 4);
+    const reasonLines = wrapMultiline(doc, r.reason, cols[5].w - 4);
     const rowH = Math.max(9, reasonLines.length * 4.5 + 3);
 
     // New page check
@@ -1273,7 +1282,7 @@ function buildOwnPDF(recordsList, titleText, filenamePrefix, opts) {
   const orderedRecords = [...recordsList].reverse();
   orderedRecords.forEach((r, idx) => {
     doc.setFontSize(7.5);
-    const reasonLines = doc.splitTextToSize(String(r.reason), cols[reasonCol].w - 4);
+    const reasonLines = wrapMultiline(doc, r.reason, cols[reasonCol].w - 4);
     const rowH = Math.max(9, reasonLines.length * 4.5 + 3);
 
     if (y + rowH > H - 20) {
@@ -1683,7 +1692,7 @@ function buildAdvancePDF(recordsList, titleText, filenamePrefix) {
   const orderedRecords = [...recordsList].reverse();
   orderedRecords.forEach((r, idx) => {
     doc.setFontSize(7.5);
-    const reasonLines = doc.splitTextToSize(String(r.reason), cols[6].w - 4);
+    const reasonLines = wrapMultiline(doc, r.reason, cols[6].w - 4);
     const rowH = Math.max(9, reasonLines.length * 4.5 + 3);
 
     if (y + rowH > H - 20) {
@@ -1832,7 +1841,7 @@ function createExtraAccount(def) {
         ${itemMode ? `
         <div class="field">
           <label for="${key}Reason">${noteMode ? 'Add Note' : 'Purpose / Reason'}</label>
-          <input type="text" id="${key}Reason" placeholder="${noteMode ? 'Type Note Text' : (takeBack ? 'For what was that item being returned?' : 'What was the return of the item for?')}" style="min-height:58px;padding:16px 14px;${noteMode ? '' : 'font-size:16px;'}"/>
+          <textarea id="${key}Reason" rows="${noteMode ? 3 : 2}" placeholder="${noteMode ? 'Type Note Text' : (takeBack ? 'For what was that item being returned?' : 'What was the return of the item for?')}" style="min-height:58px;padding:16px 14px;${noteMode ? '' : 'font-size:16px;'}"></textarea>
         </div>
 
         <div class="grid-2">
@@ -1866,7 +1875,7 @@ function createExtraAccount(def) {
 
         <div class="field">
           <label for="${key}Reason">Purpose / Reason</label>
-          <input type="text" id="${key}Reason" placeholder="What the money was for"/>
+          <textarea id="${key}Reason" rows="2" placeholder="What the money was for"></textarea>
         </div>
         `}
 

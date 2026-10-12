@@ -113,6 +113,25 @@ input {
 input:focus { border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(0, 166, 255, 0.15); }
 input::placeholder { color: #bbb; }
 
+textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 9px 12px;
+  color: var(--text);
+  font-family: 'Bookman Old Style', 'URW Bookman', 'Bookman', serif;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  outline: none;
+  width: 100%;
+  min-height: 44px;
+  resize: vertical;
+  white-space: pre-wrap;
+  transition: border-color 0.15s;
+}
+textarea:focus { border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(0, 166, 255, 0.15); }
+textarea::placeholder { color: #bbb; }
+
 .prefix-wrap { position:relative; }
 .prefix {
   position: absolute;
@@ -202,7 +221,7 @@ td { padding: 10px 12px; vertical-align: middle; }
 .td-amount-taken { color: #8B2626; }
 .td-reason { cursor: pointer; }
 .td-reason.reason-expanded {
-  white-space: normal;
+  white-space: pre-wrap;
   overflow: visible;
   text-overflow: unset;
   word-break: break-word;
@@ -282,7 +301,7 @@ td { padding: 10px 12px; vertical-align: middle; }
   .card-header-row { flex-wrap: wrap; }
   .myself-btn { font-size: 0.65rem; padding: 5px 10px; }
 
-  input { font-size: 0.85rem; padding: 8px 10px; }
+  input, textarea { font-size: 0.85rem; padding: 8px 10px; }
   label { font-size: 0.68rem; }
 
   .btn-primary { font-size: 0.85rem; padding: 10px; }
