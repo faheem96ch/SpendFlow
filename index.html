@@ -533,7 +533,7 @@
           <input type="text" id="advanceOtherName" placeholder="Other name"/>
         </div>
 
-        <div class="grid-2">
+        <div class="grid-3">
           <div class="field">
             <label for="advanceAmountTaken">Amount Taken (Rs.)</label>
             <div class="prefix-wrap">
@@ -542,7 +542,14 @@
             </div>
           </div>
           <div class="field">
-            <label for="advanceAmountRemaining">Amount Remaining (Rs.)</label>
+            <label for="advanceAmountPrice">Amount Price (Rs.)</label>
+            <div class="prefix-wrap">
+              <span class="prefix">Rs.</span>
+              <input type="number" id="advanceAmountPrice" placeholder="0" min="0"/>
+            </div>
+          </div>
+          <div class="field">
+            <label for="advanceAmountRemaining">Amount Remaining (Rs.) <span class="tip-text">optional</span></label>
             <div class="prefix-wrap">
               <span class="prefix">Rs.</span>
               <input type="number" id="advanceAmountRemaining" placeholder="0" min="0"/>

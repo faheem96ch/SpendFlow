@@ -1191,3 +1191,6 @@ td { padding: 10px 12px; vertical-align: middle; }
 #trashPage .records-header > div { flex: 1; min-width: 0; }
 .trash-arrow-btn { margin: 0; flex-shrink: 0; width: 36px; height: 36px; }
 .trash-arrow-btn .footer-toggle-arrow { width: 18px; height: 18px; }
+
+/* Amount Price shown in green (Tasks table, trash, receipt) */
+.td-amount-price { color: #1a7a1a; }

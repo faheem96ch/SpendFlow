@@ -270,6 +270,7 @@ function initApp() {
   document.getElementById('advanceDate').value = now.toISOString().split('T')[0];
   document.getElementById('advanceTime').value = now.toTimeString().slice(0, 5);
   document.getElementById('advanceSubmitBtn').addEventListener('click', addAdvanceRecord);
+  initAdvanceAutoCalc();
   document.getElementById('closeAdvanceBtn').addEventListener('click', closeAdvancePage);
 
   initHeaderMenu();
@@ -1359,12 +1360,44 @@ function buildOwnPDF(recordsList, titleText, filenamePrefix, opts) {
    back (kept in a separate Firestore field from the main and
    own records, mirroring the same pattern)
    ============================================================ */
+/* Amount Taken / Amount Price / Amount Remaining auto-calculation:
+   Price + Remaining = Taken. Typing in one of Price / Remaining fills the other. */
+let advanceLastEdited = null; // 'price' | 'remaining'
+function advRound(n) { return Math.round(n * 100) / 100; }
+function advGetPrice(r) {
+  if (typeof r.amountPrice === 'number') return r.amountPrice;
+  return advRound((r.amountTaken || 0) - (r.amountRemaining || 0)); // older records
+}
+function initAdvanceAutoCalc() {
+  const takenEl = document.getElementById('advanceAmountTaken');
+  const priceEl = document.getElementById('advanceAmountPrice');
+  const remEl   = document.getElementById('advanceAmountRemaining');
+  if (!takenEl || !priceEl || !remEl) return;
+
+  function fromPrice() {
+    const t = parseFloat(takenEl.value), p = parseFloat(priceEl.value);
+    remEl.value = (isNaN(t) || isNaN(p)) ? '' : advRound(t - p);
+  }
+  function fromRemaining() {
+    const t = parseFloat(takenEl.value), r = parseFloat(remEl.value);
+    priceEl.value = (isNaN(t) || isNaN(r)) ? '' : advRound(t - r);
+  }
+  priceEl.addEventListener('input', () => { advanceLastEdited = 'price'; fromPrice(); });
+  remEl.addEventListener('input',   () => { advanceLastEdited = 'remaining'; fromRemaining(); });
+  takenEl.addEventListener('input', () => {
+    if (advanceLastEdited === 'price') fromPrice();
+    else if (advanceLastEdited === 'remaining') fromRemaining();
+  });
+}
+
 function addAdvanceRecord() {
   const name            = document.getElementById('advanceName').value.trim();
   const otherName       = document.getElementById('advanceOtherName').value.trim();
   const amountTaken     = parseFloat(document.getElementById('advanceAmountTaken').value);
+  const amountPriceRaw  = document.getElementById('advanceAmountPrice').value;
+  const amountPrice     = amountPriceRaw === '' ? NaN : parseFloat(amountPriceRaw);
   const amountRemainingRaw = document.getElementById('advanceAmountRemaining').value;
-  const amountRemaining = amountRemainingRaw === '' ? 0 : parseFloat(amountRemainingRaw);
+  let amountRemaining   = amountRemainingRaw === '' ? NaN : parseFloat(amountRemainingRaw);
   const date    = document.getElementById('advanceDate').value;
   const timeRaw = document.getElementById('advanceTime').value;
   const time    = convertTo12hr(timeRaw);
@@ -1373,12 +1406,16 @@ function addAdvanceRecord() {
   if (!name)      { alert('Plz enter the name.'); return; }
   if (!otherName) { alert('Plz enter the other name.'); return; }
   if (!amountTaken || amountTaken <= 0) { alert('Plz enter a valid amount taken.'); return; }
-  if (amountRemainingRaw === '' || isNaN(amountRemaining) || amountRemaining < 0) { alert('Plz enter a valid amount remaining.'); return; }
+  if (isNaN(amountPrice) && isNaN(amountRemaining)) { alert('Plz enter the amount price.'); return; }
+  let price = amountPrice;
+  if (isNaN(price)) price = advRound(amountTaken - amountRemaining);
+  if (isNaN(amountRemaining)) amountRemaining = advRound(amountTaken - price);
+  if (price < 0 || amountRemaining < 0) { alert('Amount Price cannot be more than Amount Taken.'); return; }
   if (!date)     { alert('Plz select a date.'); return; }
   if (!timeRaw)  { alert('Plz select a time.'); return; }
   if (!reason)   { alert('Plz enter a reason.'); return; }
 
-  advanceRecords.unshift({ id: Date.now(), name, otherName, amountTaken, amountRemaining, date, time, reason });
+  advanceRecords.unshift({ id: Date.now(), name, otherName, amountTaken, amountPrice: price, amountRemaining, date, time, reason });
   saveAdvance();
   renderAdvanceAccounts();
   renderAdvanceTable();
@@ -1406,7 +1443,9 @@ function deleteAdvanceRecord(id) {
 
 function resetAdvanceForm() {
   document.getElementById('advanceAmountTaken').value = '';
+  document.getElementById('advanceAmountPrice').value = '';
   document.getElementById('advanceAmountRemaining').value = '';
+  advanceLastEdited = null;
   document.getElementById('advanceReason').value = '';
   const now = new Date();
   document.getElementById('advanceDate').value = now.toISOString().split('T')[0];
@@ -1570,6 +1609,7 @@ function renderAdvanceTable() {
       <td class="td-bold">${esc(r.name)}</td>
       <td>${esc(r.otherName)}</td>
       <td class="td-amount td-amount-taken${r.struck ? ' struck-amount' : ''}">Rs. ${r.amountTaken.toLocaleString('en-PK')}</td>
+      <td class="td-amount td-amount-price${r.struck ? ' struck-amount' : ''}">Rs. ${advGetPrice(r).toLocaleString('en-PK')}</td>
       <td class="td-amount${r.struck ? ' struck-amount' : ''}">Rs. ${r.amountRemaining.toLocaleString('en-PK')}</td>
       <td class="td-reason" title="${esc(r.reason)}" onclick="this.classList.toggle('reason-expanded')">${esc(r.reason)}</td>
       <td class="td-muted" style="white-space:nowrap;">${r.date} &nbsp; ${r.time}</td>
@@ -1580,7 +1620,7 @@ function renderAdvanceTable() {
 
   area.innerHTML = `<div class="table-wrap"><table>
     <thead><tr>
-      <th>#</th><th>Name</th><th>Other Name</th><th>Amount Taken</th><th>Amount Remaining</th><th>Reason</th><th>Date / Time</th><th>Paid</th><th></th>
+      <th>#</th><th>Name</th><th>Other Name</th><th>Amount Taken</th><th>Amount Price</th><th>Amount Remaining</th><th>Reason</th><th>Date / Time</th><th>Paid</th><th></th>
     </tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
@@ -1624,17 +1664,18 @@ function buildAdvancePDF(recordsList, titleText, filenamePrefix) {
   const today  = new Date().toLocaleDateString('en-PK');
   const total  = recordsList.reduce((s, r) => s + (r.struck ? 0 : r.amountRemaining), 0);
 
-  // Columns: #, Name, Other Name, Taken, Remaining, Date/Time, Reason
+  // Columns: #, Name, Other Name, Taken, Price, Remaining, Date/Time, Reason
   const cols = [
-    { x: margin,       w: 8  },
-    { x: margin + 8,   w: 30 },
-    { x: margin + 38,  w: 30 },
-    { x: margin + 68,  w: 24 },
-    { x: margin + 92,  w: 24 },
-    { x: margin + 116, w: 26 },
-    { x: margin + 142, w: W - margin - 142 - margin }
+    { x: margin,       w: 7  },
+    { x: margin + 7,   w: 24 },
+    { x: margin + 31,  w: 24 },
+    { x: margin + 55,  w: 21 },
+    { x: margin + 76,  w: 21 },
+    { x: margin + 97,  w: 23 },
+    { x: margin + 120, w: 24 },
+    { x: margin + 144, w: W - margin - 144 - margin }
   ];
-  const headers = ['No.', 'Name', 'Other Name', 'Taken', 'Remaining', 'Date / Time', 'Reason'];
+  const headers = ['No.', 'Name', 'Other Name', 'Taken', 'Price', 'Remaining', 'Date / Time', 'Reason'];
 
   function pageHeader(isFirst) {
     const headerH = isFirst ? 28 : 18;
@@ -1692,7 +1733,7 @@ function buildAdvancePDF(recordsList, titleText, filenamePrefix) {
   const orderedRecords = [...recordsList].reverse();
   orderedRecords.forEach((r, idx) => {
     doc.setFontSize(7.5);
-    const reasonLines = wrapMultiline(doc, r.reason, cols[6].w - 4);
+    const reasonLines = wrapMultiline(doc, r.reason, cols[7].w - 4);
     const rowH = Math.max(9, reasonLines.length * 4.5 + 3);
 
     if (y + rowH > H - 20) {
@@ -1739,29 +1780,41 @@ function buildAdvancePDF(recordsList, titleText, filenamePrefix) {
       doc.line(cols[3].x + 2, midY - 1.3, cols[3].x + 2 + tw, midY - 1.3);
     }
 
+    doc.setFont('helvetica', r.struck ? 'italic' : 'bold');
+    doc.setFontSize(7.5);
+    doc.setTextColor(22, 128, 60);
+    const priceText = 'Rs. ' + advGetPrice(r).toLocaleString('en-PK');
+    doc.text(priceText, cols[4].x + 2, midY);
+    if (r.struck) {
+      const pw = doc.getTextWidth(priceText);
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.35);
+      doc.line(cols[4].x + 2, midY - 1.3, cols[4].x + 2 + pw, midY - 1.3);
+    }
+
     doc.setFont('helvetica', r.struck ? 'italic' : 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(0, 110, 182);
     const remainingText = 'Rs. ' + r.amountRemaining.toLocaleString('en-PK');
-    doc.text(remainingText, cols[4].x + 2, midY);
+    doc.text(remainingText, cols[5].x + 2, midY);
     if (r.struck) {
       const rw = doc.getTextWidth(remainingText);
       doc.setDrawColor(0, 0, 0);
       doc.setLineWidth(0.35);
-      doc.line(cols[4].x + 2, midY - 1.3, cols[4].x + 2 + rw, midY - 1.3);
+      doc.line(cols[5].x + 2, midY - 1.3, cols[5].x + 2 + rw, midY - 1.3);
     }
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(100, 100, 100);
-    doc.text(r.date, cols[5].x + 2, y + rowH / 2 - 0.5);
-    doc.text(r.time, cols[5].x + 2, y + rowH / 2 + 4);
+    doc.text(r.date, cols[6].x + 2, y + rowH / 2 - 0.5);
+    doc.text(r.time, cols[6].x + 2, y + rowH / 2 + 4);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(26, 26, 26);
     const reasonTopY = y + (rowH - reasonLines.length * 4.5) / 2 + 3;
-    doc.text(reasonLines, cols[6].x + 2, reasonTopY);
+    doc.text(reasonLines, cols[7].x + 2, reasonTopY);
 
     y += rowH;
   });
@@ -2291,7 +2344,7 @@ function renderTrashPortion(type, areaId, badgeId) {
     const noAmt = !!(EX[type] && EXTRA_DEFS.find(d => d.id === type).itemMode);
     const amountVal = type === 'advance' ? r.amountTaken : (r.amount || 0);
     const remainingCell = type === 'advance'
-      ? `<td class="td-amount${r.struck ? ' struck-amount' : ''}">Rs. ${r.amountRemaining.toLocaleString('en-PK')}</td>`
+      ? `<td class="td-amount td-amount-price${r.struck ? ' struck-amount' : ''}">Rs. ${advGetPrice(r).toLocaleString('en-PK')}</td><td class="td-amount${r.struck ? ' struck-amount' : ''}">Rs. ${r.amountRemaining.toLocaleString('en-PK')}</td>`
       : '';
     rows += `<tr>
       <td class="td-muted">${serial}</td>
@@ -2309,7 +2362,7 @@ function renderTrashPortion(type, areaId, badgeId) {
 
   const noAmtHdr = !!(EX[type] && EXTRA_DEFS.find(d => d.id === type).itemMode);
   const isNoteType = !!(EX[type] && EXTRA_DEFS.find(d => d.id === type).noteMode);
-  const amountHeader = type === 'advance' ? '<th>Amount Taken</th><th>Amount Remaining</th>' : (noAmtHdr ? '' : '<th>Amount</th>');
+  const amountHeader = type === 'advance' ? '<th>Amount Taken</th><th>Amount Price</th><th>Amount Remaining</th>' : (noAmtHdr ? '' : '<th>Amount</th>');
 
   area.innerHTML = `<div class="table-wrap"><table>
     <thead><tr>
