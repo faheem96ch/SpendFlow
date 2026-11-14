@@ -4,127 +4,251 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Notebook Expense Register</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
-  <!-- ===== AUTH SCREEN ===== -->
-  <div id="authScreen" class="auth-wrap">
-    <div class="auth-card">
+  <!-- ===== AUTH SCREEN (SpendFlow Khata) ===== -->
+  <div id="authScreen" class="auth-wrap mode-login">
 
-      <img src="assets/sf-icon-logo.png" alt="SpendFlow" class="auth-logo"/>
+    <!-- icons (reused below) -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <symbol id="afi-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.3" fill="currentColor"/><path d="M4 21c0-4.2 3.6-6.8 8-6.8s8 2.6 8 6.8z" fill="currentColor"/></symbol>
+      <symbol id="afi-lock" viewBox="0 0 24 24"><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><rect x="4.8" y="10.2" width="14.4" height="10.8" rx="2.6" fill="currentColor"/><circle cx="12" cy="15.2" r="1.6" style="fill:var(--af-dot,#dbe8f8)"/><rect x="11.3" y="15.5" width="1.4" height="3" rx=".7" style="fill:var(--af-dot,#dbe8f8)"/></symbol>
+      <symbol id="afi-userplus" viewBox="0 0 24 24"><circle cx="10" cy="8" r="4.1" fill="currentColor"/><path d="M2.5 21c0-4 3.3-6.4 7.5-6.4s7.5 2.4 7.5 6.4z" fill="currentColor"/><path d="M19 5.5v6.5M15.75 8.75h6.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></symbol>
+      <symbol id="afi-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3.2"/></g></symbol>
+      <symbol id="afi-eyeoff" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7c2 0 3.8.7 5.3 1.7M22 12s-3.6 7-10 7c-2 0-3.8-.7-5.3-1.7"/><path d="M9.9 9.9a3.2 3.2 0 0 0 4.2 4.2"/><path d="M3.5 3.5l17 17"/></g></symbol>
+      <symbol id="afi-login" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M10 7.5 14.5 12 10 16.5"/><path d="M14.5 12H3.5"/></g></symbol>
+      <symbol id="afi-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    </svg>
 
-      <h1 class="auth-title">Register Book</h1>
-      <p class="auth-sub" id="authSubText">Sign in to continue</p>
-
-      <div class="field">
-        <label for="authName">Name </label>
-        <div class="auth-input-wrap">
-          <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          <input type="text" id="authName" placeholder="Enter any name"/>
-        </div>
-      </div>
-      <div class="field">
-        <label for="authPassword">Password</label>
-        <div class="auth-input-wrap">
-          <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <input type="password" id="authPassword" placeholder="Enter password"/>
-        </div>
-      </div>
-      <div class="field" id="authConfirmField" style="display:none;">
-        <label for="authPasswordConfirm">Confirm Password</label>
-        <div class="auth-input-wrap">
-          <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <input type="password" id="authPasswordConfirm" placeholder="Re-enter password"/>
-        </div>
-      </div>
-
-      <p class="auth-error" id="authError"></p>
-
-      <button class="btn-primary" id="authSubmitBtn">Login</button>
-
-      <p class="auth-switch" id="authSwitchText"></p>
+    <!-- soft moving background + waves -->
+    <div class="auth-bg" aria-hidden="true">
+      <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
     </div>
+    <div class="auth-waves" aria-hidden="true">
+      <svg class="af-wave w1" viewBox="0 0 2880 120" preserveAspectRatio="none"><path d="M0 60 Q180 6 360 60 T720 60 T1080 60 T1440 60 T1800 60 T2160 60 T2520 60 T2880 60 V120 H0 Z"/></svg>
+      <svg class="af-wave w2" viewBox="0 0 2880 120" preserveAspectRatio="none"><path d="M0 70 Q240 20 480 70 T960 70 T1440 70 T1920 70 T2400 70 T2880 70 V120 H0 Z"/></svg>
+    </div>
+
+    <button type="button" class="auth-back" id="authBackBtn" aria-label="Back to login">
+      <svg width="22" height="22"><use href="#afi-back"/></svg>
+    </button>
+
+    <main class="auth-stage">
+
+      <header class="auth-brand">
+        <div class="sf-logo-wrap af-rise" style="--i:0"><img class="sf-logo" src="assets/sf-icon-logo.png" alt="SpendFlow logo"/></div>
+        <h1 class="sf-name af-rise" style="--i:1">.<span>NoteBook</span></h1>
+        <p class="sf-tag af-rise" style="--i:2"><i></i><span>Track &bull; Manage &bull; Share</span><i></i></p>
+      </header>
+
+      <div class="card-wrap af-rise" style="--i:3">
+        <section class="auth-card" id="authCard">
+
+          <div class="auth-badge" aria-hidden="true">
+            <svg class="ico-lock" width="30" height="30"><use href="#afi-lock"/></svg>
+            <svg class="ico-user" width="32" height="32"><use href="#afi-userplus"/></svg>
+          </div>
+
+          <h2 class="auth-title" id="authTitle" data-swap>Welcome Back</h2>
+          <p class="auth-sub" id="authSubText" data-swap>Login to Continue</p>
+
+          <div class="af-field af-rise" style="--i:5">
+            <span class="af-ico"><svg width="22" height="22"><use href="#afi-user"/></svg></span>
+            <input type="text" id="authName" class="af-input" placeholder="Name" aria-label="Name" autocomplete="username"/>
+          </div>
+
+          <div class="af-field af-rise" style="--i:6">
+            <span class="af-ico"><svg width="22" height="22"><use href="#afi-lock"/></svg></span>
+            <input type="password" id="authPassword" class="af-input" placeholder="Password" aria-label="Password" autocomplete="current-password"/>
+            <button type="button" class="af-eye" data-target="authPassword" aria-label="Show password">
+              <svg class="eye-on" width="22" height="22"><use href="#afi-eye"/></svg>
+              <svg class="eye-off" width="22" height="22"><use href="#afi-eyeoff"/></svg>
+            </button>
+          </div>
+
+          <!-- only in Create Account mode -->
+          <div class="af-collapse af-signup-only" id="authConfirmField">
+            <div>
+              <div class="af-field">
+                <span class="af-ico"><svg width="22" height="22"><use href="#afi-lock"/></svg></span>
+                <input type="password" id="authPasswordConfirm" class="af-input" placeholder="Confirm Password" aria-label="Confirm Password" autocomplete="new-password" tabindex="-1"/>
+                <button type="button" class="af-eye" data-target="authPasswordConfirm" aria-label="Show password" tabindex="-1">
+                  <svg class="eye-on" width="22" height="22"><use href="#afi-eye"/></svg>
+                  <svg class="eye-off" width="22" height="22"><use href="#afi-eyeoff"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <p class="auth-error" id="authError" role="alert"></p>
+
+          <button type="button" class="af-btn af-rise" style="--i:7" id="authSubmitBtn">
+            <svg class="af-btn-ico ico-login" width="22" height="22"><use href="#afi-login"/></svg>
+            <svg class="af-btn-ico ico-signup" width="22" height="22"><use href="#afi-userplus"/></svg>
+            <span class="af-spin" aria-hidden="true"></span>
+            <span id="authSubmitLabel">Login</span>
+          </button>
+
+          <!-- only in Login mode -->
+          <div class="af-collapse af-login-only">
+            <div>
+              <div class="auth-or"><span>OR</span></div>
+              <button type="button" class="af-btn af-btn-ghost" id="authCreateBtn">
+                <svg width="22" height="22"><use href="#afi-userplus"/></svg>
+                <span>Create Account</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- only in Create Account mode -->
+          <div class="af-collapse af-signup-only">
+            <div>
+              <p class="auth-switch" id="authSwitchText">Already have an account? <button type="button" class="af-link" id="authLoginLink">Login</button></p>
+            </div>
+          </div>
+
+        </section>
+      </div>
+
+      <p class="auth-foot af-rise" style="--i:8">
+        <span id="authFootText" data-swap>Manage your khata easily!</span>
+        <svg class="af-squiggle" viewBox="0 0 140 14" aria-hidden="true"><path d="M3 9 C 35 2, 85 2, 137 7"/></svg>
+      </p>
+
+    </main>
   </div>
 
   <!-- ===== MAIN APP ===== -->
   <div class="container" id="appMain" style="display:none;">
 
     <header class="header">
+      <div class="hd-art" aria-hidden="true">
+        <svg class="hd-wave hd-w-back" viewBox="0 0 2880 160" preserveAspectRatio="none"><defs><linearGradient id="hdg1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#cfe8ff"/><stop offset=".55" stop-color="#8ccbfb"/><stop offset="1" stop-color="#3f9bf5"/></linearGradient></defs><path fill="url(#hdg1)" d="M0 50 Q180 20 360 50 T720 50 T1080 50 T1440 50 T1800 50 T2160 50 T2520 50 T2880 50 V0 H0 Z"/></svg>
+        <span class="hd-glow"></span>
+        <svg class="hd-wave hd-w-mid" viewBox="0 0 2880 160" preserveAspectRatio="none"><defs><linearGradient id="hdg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e8f2ff"/></linearGradient></defs><path fill="url(#hdg2)" d="M0 58 Q120 36 240 58 T480 58 T720 58 T960 58 T1200 58 T1440 58 T1680 58 T1920 58 T2160 58 T2400 58 T2640 58 T2880 58 V160 H0 Z"/></svg>
+        <span class="hd-sheen"></span>
+        <svg class="hd-wave hd-w-f1" viewBox="0 0 2880 160" preserveAspectRatio="none"><path d="M0 136 Q180 114 360 136 T720 136 T1080 136 T1440 136 T1800 136 T2160 136 T2520 136 T2880 136 V160 H0 Z"/></svg>
+        <svg class="hd-wave hd-w-f2" viewBox="0 0 2880 160" preserveAspectRatio="none"><path d="M0 146 Q90 130 180 146 T360 146 T540 146 T720 146 T900 146 T1080 146 T1260 146 T1440 146 T1620 146 T1800 146 T1980 146 T2160 146 T2340 146 T2520 146 T2700 146 T2880 146 V160 H0 Z"/></svg>
+      </div>
+
       <div class="header-top">
         <div class="header-brand">
           <img src="assets/spendflow-logo.png" alt="SpendFlow" class="header-logo"/>
-          <p>Track student expenses</p>
+          <p class="hd-sr">Track student expenses</p>
         </div>
+        <i class="hd-div" aria-hidden="true"></i>
+
         <div class="header-right">
           <div class="header-search" id="headerSearchWrap">
             <button class="search-icon-btn" id="searchToggleBtn" type="button" aria-label="Search account">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><line x1="20.5" y1="20.5" x2="16" y2="16"/></svg>
             </button>
             <div class="search-box" id="searchBox" style="display:none;">
               <input type="text" id="searchInput" placeholder="Search by name..." autocomplete="off"/>
               <div class="search-results" id="searchResults"></div>
             </div>
           </div>
+
+          <i class="hd-div hd-div-sm" aria-hidden="true"></i>
+
           <div class="header-menu" id="headerMenuWrap">
-            <button class="menu-dots-btn" id="menuDotsBtn" type="button" aria-label="Menu">
-              <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="12" cy="19" r="2.2"/></svg>
+            <button class="menu-dots-btn" id="menuDotsBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false" aria-controls="menuDropdown">
+              <svg viewBox="0 0 24 24" fill="currentColor"><rect class="b1" x="3" y="5" width="18" height="3" rx="1.5"/><rect class="b2" x="3" y="10.5" width="18" height="3" rx="1.5"/><rect class="b3" x="3" y="16" width="18" height="3" rx="1.5"/></svg>
             </button>
-            <div class="menu-dropdown" id="menuDropdown" style="display:none;">
-              <div class="menu-dropdown-name" id="loggedInName"></div>
-              <button class="menu-dropdown-item" id="menuTasksBtn" type="button">
-                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="6" height="6" rx="1"/><path d="M3 17h6v4H3z"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>
-                Tasks
-              </button>
-              
-              <button class="menu-dropdown-item" id="menuAboutBtn" type="button">
-                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16.5"/><circle cx="12" cy="7.8" r="0.9" fill="currentColor" stroke="none"/></svg>
-                About
-              </button>
-              <button class="menu-dropdown-item" id="menuMoneyTrackBtn" type="button">
-                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><circle cx="17" cy="15" r="1.2" fill="currentColor" stroke="none"/><path d="M6 6V4.5A1.5 1.5 0 0 1 7.5 3H18"/></svg>
-                MoneyTrack
-                <svg class="menu-dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <div class="menu-dropdown-sub" id="menuMoneyTrackSub" style="display:none;">
-                <button class="menu-dropdown-item" id="menuReceivablesBtn" type="button">
-                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                Receivables
-              </button>
-                <button class="menu-dropdown-item" id="menuMainBtn" type="button">
-                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
-                Main
-              </button>
+
+            <div class="menu-overlay" id="menuOverlay"></div>
+
+            <aside class="menu-dropdown" id="menuDropdown" aria-hidden="true">
+              <div class="mp-waves" aria-hidden="true">
+                <svg class="mp-wave mp-wv1" viewBox="0 0 2880 100" preserveAspectRatio="none"><path d="M0 46 Q180 20 360 46 T720 46 T1080 46 T1440 46 T1800 46 T2160 46 T2520 46 T2880 46 V100 H0 Z"/></svg>
+                <svg class="mp-wave mp-wv2" viewBox="0 0 2880 100" preserveAspectRatio="none"><path d="M0 64 Q120 42 240 64 T480 64 T720 64 T960 64 T1200 64 T1440 64 T1680 64 T1920 64 T2160 64 T2400 64 T2640 64 T2880 64 V100 H0 Z"/></svg>
               </div>
-              <button class="menu-dropdown-item" id="menuMainExtraBtn" type="button">
-                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
-                Items
-                <svg class="menu-dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+
+              <button class="mp-close" id="menuCloseBtn" type="button" aria-label="Close menu">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg>
               </button>
-              <div class="menu-dropdown-sub" id="menuMainExtraSub" style="display:none;">
-                <button class="menu-dropdown-item" id="menuMain1Btn" type="button">
-                  <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
-                  Take back
-                </button>
-                <button class="menu-dropdown-item" id="menuMain2Btn" type="button">
-                  <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg>
-                  Item Return
+
+              <div class="mp-scroll">
+                <img class="mp-logo" src="assets/spendflow-logo.png" alt="SpendFlow"/>
+
+                <div class="menu-dropdown-name" id="menuUserCard" style="--n:0">
+                  <span class="mp-avatar"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7.5" r="4.6"/><path d="M3.2 21.5c0-4.7 3.9-7.5 8.8-7.5s8.8 2.8 8.8 7.5z"/></svg></span>
+                  <span class="mp-who"><b id="loggedInName"></b><small>Welcome Back!</small></span>
+                </div>
+
+                <div class="mp-div"></div>
+
+                <div class="mp-list">
+                  <button class="menu-dropdown-item" id="menuTasksBtn" type="button" style="--n:1">
+                    <span class="mp-ico"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2.5" y="2.5" width="8.5" height="8.5" rx="2.4"/><rect x="13" y="2.5" width="8.5" height="8.5" rx="2.4" transform="rotate(10 17.2 6.7)"/><rect x="2.5" y="13" width="8.5" height="8.5" rx="2.4"/><rect x="13" y="13" width="8.5" height="8.5" rx="2.4"/></svg></span>
+                    <span class="mp-label">Tasks</span>
+                    <svg class="mp-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+                  </button>
+
+                  <button class="menu-dropdown-item" id="menuAboutBtn" type="button" style="--n:2">
+                    <span class="mp-ico"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="7.2" r="1.6" fill="#fff"/><rect x="10.5" y="10.3" width="3" height="7.4" rx="1.2" fill="#fff"/></svg></span>
+                    <span class="mp-label">About</span>
+                    <svg class="mp-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+                  </button>
+
+                  <button class="menu-dropdown-item" id="menuMoneyTrackBtn" type="button" style="--n:3" aria-expanded="false">
+                    <span class="mp-ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 7.5A3.5 3.5 0 0 1 6.5 4H18v3H7c-.6 0-1 .4-1 .9s.4.9 1 .9h12.5A1.5 1.5 0 0 1 21 10.3v7.2a3.5 3.5 0 0 1-3.5 3.5h-11A3.5 3.5 0 0 1 3 17.5z"/><circle cx="16.6" cy="14.6" r="1.7" fill="#fff"/></svg></span>
+                    <span class="mp-label">MoneyTrack</span>
+                    <svg class="mp-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+                  </button>
+                  <div class="mp-sub" id="menuMoneyTrackSub">
+                    <button class="menu-dropdown-item" id="menuReceivablesBtn" type="button">
+                      <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                      <span class="mp-label">Receivables</span>
+                    </button>
+                    <button class="menu-dropdown-item" id="menuMainBtn" type="button">
+                      <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg>
+                      <span class="mp-label">Main</span>
+                    </button>
+                  </div>
+
+                  <button class="menu-dropdown-item" id="menuMainExtraBtn" type="button" style="--n:4" aria-expanded="false">
+                    <span class="mp-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="13" height="13" rx="3.4" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="8.5" y="8.5" width="12.5" height="12.5" rx="3.2" fill="currentColor"/><rect x="12" y="12" width="5.6" height="5.6" rx="1.4" fill="#e9f0fc"/></svg></span>
+                    <span class="mp-label">Items</span>
+                    <svg class="mp-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+                  </button>
+                  <div class="mp-sub" id="menuMainExtraSub">
+                    <button class="menu-dropdown-item" id="menuMain1Btn" type="button">
+                      <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+                      <span class="mp-label">Take back</span>
+                    </button>
+                    <button class="menu-dropdown-item" id="menuMain2Btn" type="button">
+                      <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg>
+                      <span class="mp-label">Item Return</span>
+                    </button>
+                  </div>
+
+                  <button class="menu-dropdown-item" id="menuNoteBtn" type="button" style="--n:5">
+                    <span class="mp-ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h8.2L20 7.8V19a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3z"/><path d="M14 2v4.2A1.8 1.8 0 0 0 15.8 8H20" fill="#e9f0fc" opacity=".55"/><rect x="7" y="12" width="10" height="2.2" rx="1.1" fill="#e9f0fc"/><rect x="7" y="16.2" width="6.5" height="2.2" rx="1.1" fill="#e9f0fc"/></svg></span>
+                    <span class="mp-label">Note Text</span>
+                    <svg class="mp-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+                  </button>
+
+                  <button class="menu-dropdown-item" id="menuTrashBtn" type="button" style="--n:6">
+                    <span class="mp-ico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 2.5h6l.9 2H21v2.3H3V4.5h5.1z"/><path d="M4.8 8.8h14.4l-1.1 11.6a2.2 2.2 0 0 1-2.2 2H8.1a2.2 2.2 0 0 1-2.2-2z"/><rect x="9.2" y="11.5" width="1.9" height="7.6" rx=".95" fill="#e9f0fc"/><rect x="12.9" y="11.5" width="1.9" height="7.6" rx=".95" fill="#e9f0fc"/></svg></span>
+                    <span class="mp-label">Trash</span>
+                    <svg class="mp-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+                  </button>
+                </div>
+
+                <div class="mp-div mp-div-b"></div>
+
+                <button class="menu-dropdown-item menu-dropdown-logout" id="logoutBtn" type="button" style="--n:7">
+                  <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 21H5.5A2.5 2.5 0 0 1 3 18.5v-13A2.5 2.5 0 0 1 5.5 3H10"/><path d="M16 7.5 20.5 12 16 16.5"/><path d="M20.5 12H9"/></svg>
+                  <span class="mp-label">Logout</span>
                 </button>
               </div>
-              <button class="menu-dropdown-item" id="menuNoteBtn" type="button">
-                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
-                Note Text
-              </button>
-              <button class="menu-dropdown-item" id="menuTrashBtn" type="button">
-                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-                Trash
-              </button>
-              <div class="menu-dropdown-divider"></div>
-              <button class="menu-dropdown-item menu-dropdown-logout" id="logoutBtn" type="button">
-                <svg class="menu-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                Logout
-              </button>
-            </div>
+            </aside>
           </div>
         </div>
       </div>

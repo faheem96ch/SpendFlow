@@ -58,35 +58,56 @@ function accountDocRef(key) {
 }
 
 function setAuthError(msg) {
-  document.getElementById('authError').textContent = msg || '';
+  const el = document.getElementById('authError');
+  el.textContent = msg || '';
+  el.classList.toggle('show', !!msg);
+  if (msg) {
+    const card = document.getElementById('authCard');
+    card.classList.remove('shake');
+    void card.offsetWidth;            // restart the shake animation
+    card.classList.add('shake');
+  }
 }
 
-function refreshAuthScreenMode() {
-  const titleEl   = document.getElementById('authSubText');
+function refreshAuthScreenMode(animate) {
+  const screen    = document.getElementById('authScreen');
   const btnEl     = document.getElementById('authSubmitBtn');
-  const confirmEl = document.getElementById('authConfirmField');
-  const switchEl  = document.getElementById('authSwitchText');
+  const labelEl   = document.getElementById('authSubmitLabel');
+  const confirmIn = document.getElementById('authPasswordConfirm');
+  const confirmEy = document.querySelector('[data-target="authPasswordConfirm"]');
+  const passIn    = document.getElementById('authPassword');
+  const changed   = screen.classList.contains('mode-signup') !== isSignupMode;
 
-  if (isSignupMode) {
-    titleEl.textContent = 'Create your account to get started';
-    btnEl.textContent = 'Create Account';
-    confirmEl.style.display = 'flex';
-    switchEl.innerHTML = 'Already have an account? <a id="authSwitchLink">Login</a>';
-  } else {
-    titleEl.textContent = 'Sign in to continue';
-    btnEl.textContent = 'Login';
-    confirmEl.style.display = 'none';
-    switchEl.innerHTML = 'New here? <a id="authSwitchLink">Create an account</a>';
-  }
+  screen.classList.toggle('mode-signup', isSignupMode);
+  screen.classList.toggle('mode-login', !isSignupMode);
 
-  const link = document.getElementById('authSwitchLink');
-  if (link) {
-    link.addEventListener('click', () => {
-      isSignupMode = !isSignupMode;
-      setAuthError('');
-      refreshAuthScreenMode();
+  document.getElementById('authTitle').textContent    = isSignupMode ? 'Create Account' : 'Welcome Back';
+  document.getElementById('authSubText').textContent  = isSignupMode ? 'Start your SpendFlow journey' : 'Login to Continue';
+  document.getElementById('authFootText').textContent = isSignupMode ? 'Keep Your Expenses Organized!' : 'Manage your Expenses easily!';
+  labelEl.textContent = isSignupMode ? 'Sign Up' : 'Login';
+
+  // hidden confirm field must not be reachable with the keyboard
+  confirmIn.tabIndex = isSignupMode ? 0 : -1;
+  confirmEy.tabIndex = isSignupMode ? 0 : -1;
+  passIn.setAttribute('autocomplete', isSignupMode ? 'new-password' : 'current-password');
+
+  if (animate && changed) {
+    document.querySelectorAll('#authScreen [data-swap]').forEach(el => {
+      el.classList.remove('swap-in');
+      void el.offsetWidth;
+      el.classList.add('swap-in');
     });
+    const foot = document.querySelector('.auth-foot');
+    foot.classList.remove('redraw');
+    void foot.offsetWidth;
+    foot.classList.add('redraw');
   }
+}
+
+function switchAuthMode(toSignup) {
+  isSignupMode = toSignup;
+  setAuthError('');
+  refreshAuthScreenMode(true);
 }
 
 async function handleAuthSubmit() {
@@ -94,13 +115,14 @@ async function handleAuthSubmit() {
   const name     = document.getElementById('authName').value.trim();
   const password = document.getElementById('authPassword').value;
 
-  if (!name) { setAuthError('Please enter your name or email.'); return; }
+  if (!name) { setAuthError('Please enter your name.'); return; }
   if (!password) { setAuthError('Please enter a password.'); return; }
 
   const btnEl = document.getElementById('authSubmitBtn');
   const key   = accountKeyFor(name, password);
   btnEl.disabled = true;
-  btnEl.textContent = isSignupMode ? 'Creating...' : 'Logging in...';
+  btnEl.classList.add('is-loading');
+  document.getElementById('authSubmitLabel').textContent = isSignupMode ? 'Creating...' : 'Logging in...';
 
   try {
     if (isSignupMode) {
@@ -110,7 +132,7 @@ async function handleAuthSubmit() {
 
       const existing = await accountDocRef(key).get();
       if (existing.exists) {
-        setAuthError('An account with this name and password already exists. Please login instead.');
+        setAuthError('Please Enter a Strong Name or Password.');
         return;
       }
 
@@ -144,6 +166,7 @@ async function handleAuthSubmit() {
     setAuthError('Connection error — please check your internet and try again.');
   } finally {
     btnEl.disabled = false;
+    btnEl.classList.remove('is-loading');
     refreshAuthScreenMode();
   }
 }
@@ -211,6 +234,19 @@ document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSub
 document.getElementById('logoutBtn').addEventListener('click', logout);
 [document.getElementById('authName'), document.getElementById('authPassword'), document.getElementById('authPasswordConfirm')]
   .forEach(el => el.addEventListener('keydown', e => { if (e.key === 'Enter') handleAuthSubmit(); }));
+
+document.getElementById('authCreateBtn').addEventListener('click', () => switchAuthMode(true));
+document.getElementById('authBackBtn').addEventListener('click', () => switchAuthMode(false));
+document.getElementById('authLoginLink').addEventListener('click', () => switchAuthMode(false));
+document.querySelectorAll('.af-eye').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const input = document.getElementById(btn.dataset.target);
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.classList.toggle('shown', show);
+    btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  });
+});
 
 checkExistingSession();
 
@@ -411,87 +447,91 @@ function openAboutSection() {
 }
 
 function initHeaderMenu() {
+  const wrap     = document.getElementById('headerMenuWrap');
   const dotsBtn  = document.getElementById('menuDotsBtn');
   const dropdown = document.getElementById('menuDropdown');
-  if (!dotsBtn || !dropdown) return;
+  const overlay  = document.getElementById('menuOverlay');
+  const closeBtn = document.getElementById('menuCloseBtn');
+  if (!wrap || !dotsBtn || !dropdown) return;
 
-  const extraBtn = document.getElementById('menuMainExtraBtn');
-  const extraSub = document.getElementById('menuMainExtraSub');
-  function collapseExtraMenu() {
-    if (extraSub) extraSub.style.display = 'none';
-    if (extraBtn) extraBtn.classList.remove('open');
+  const extraBtn  = document.getElementById('menuMainExtraBtn');
+  const extraSub  = document.getElementById('menuMainExtraSub');
+  const moneyBtn  = document.getElementById('menuMoneyTrackBtn');
+  const moneySub  = document.getElementById('menuMoneyTrackSub');
+
+  function setSub(btn, sub, open) {
+    if (sub) sub.classList.toggle('open', open);
+    if (btn) { btn.classList.toggle('open', open); btn.setAttribute('aria-expanded', open ? 'true' : 'false'); }
   }
-  const moneyBtn = document.getElementById('menuMoneyTrackBtn');
-  const moneySub = document.getElementById('menuMoneyTrackSub');
-  function collapseMoneyMenu() {
-    if (moneySub) moneySub.style.display = 'none';
-    if (moneyBtn) moneyBtn.classList.remove('open');
+  function collapseExtraMenu() { setSub(extraBtn, extraSub, false); }
+  function collapseMoneyMenu() { setSub(moneyBtn, moneySub, false); }
+
+  function isOpen() { return wrap.classList.contains('is-open'); }
+  function openMenu() {
+    wrap.classList.add('is-open');
+    dropdown.setAttribute('aria-hidden', 'false');
+    dotsBtn.setAttribute('aria-expanded', 'true');
+  }
+  function closeMenu() {
+    wrap.classList.remove('is-open');
+    dropdown.setAttribute('aria-hidden', 'true');
+    dotsBtn.setAttribute('aria-expanded', 'false');
+    collapseExtraMenu();
+    collapseMoneyMenu();
   }
 
   dotsBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    collapseExtraMenu();
-    collapseMoneyMenu();
-    dropdown.style.display = dropdown.style.display === 'none' ? 'flex' : 'none';
+    isOpen() ? closeMenu() : openMenu();
   });
-
-  document.addEventListener('click', (e) => {
-    if (dropdown.style.display !== 'none' && !dropdown.contains(e.target) && e.target !== dotsBtn) {
-      dropdown.style.display = 'none';
-    }
+  overlay.addEventListener('click', closeMenu);
+  closeBtn.addEventListener('click', closeMenu);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen()) closeMenu();
   });
 
   document.getElementById('menuReceivablesBtn').addEventListener('click', () => {
-    dropdown.style.display = 'none';
-    collapseMoneyMenu();
+    closeMenu();
     goToReceivables();
   });
   document.getElementById('menuTasksBtn').addEventListener('click', () => {
-    dropdown.style.display = 'none';
+    closeMenu();
     openAdvancePage();
   });
   document.getElementById('menuMainBtn').addEventListener('click', () => {
-    dropdown.style.display = 'none';
-    collapseMoneyMenu();
+    closeMenu();
     openMyselfPage();
   });
   document.getElementById('menuAboutBtn').addEventListener('click', () => {
-    dropdown.style.display = 'none';
+    closeMenu();
     openAboutSection();
   });
   document.getElementById('menuTrashBtn').addEventListener('click', () => {
-    dropdown.style.display = 'none';
+    closeMenu();
     openTrashPage();
   });
 
-  // "Main extra" — click to show the 2 accounts (Main 1 / Main 2)
+  // "Items" — click to show the 2 accounts (Take back / Item Return)
   if (extraBtn && extraSub) {
-    extraBtn.addEventListener('click', () => {
-      const isHidden = extraSub.style.display === 'none';
-      extraSub.style.display = isHidden ? 'flex' : 'none';
-      extraBtn.classList.toggle('open', isHidden);
-    });
+    extraBtn.addEventListener('click', () => setSub(extraBtn, extraSub, !extraSub.classList.contains('open')));
   }
-  // "MoneyTrack" - click to show Receivable / Main
+  // "MoneyTrack" — click to show Receivables / Main
   if (moneyBtn && moneySub) {
-    moneyBtn.addEventListener('click', () => {
-      const isHidden = moneySub.style.display === 'none';
-      moneySub.style.display = isHidden ? 'flex' : 'none';
-      moneyBtn.classList.toggle('open', isHidden);
-    });
+    moneyBtn.addEventListener('click', () => setSub(moneyBtn, moneySub, !moneySub.classList.contains('open')));
   }
   EXTRA_DEFS.forEach(d => {
     const btn = document.getElementById(d.btnId); // menuMain1Btn / menuMain2Btn
     if (!btn) return;
     btn.addEventListener('click', () => {
-      dropdown.style.display = 'none';
-      collapseExtraMenu();
+      closeMenu();
       EX[d.id].open();
     });
   });
 
-  document.getElementById('loggedInName').addEventListener('click', () => {
-    dropdown.style.display = 'none';
+  document.getElementById('logoutBtn').addEventListener('click', closeMenu);
+
+  document.getElementById('menuUserCard').addEventListener('click', () => {
+    closeMenu();
     openNamePage();
   });
 }
