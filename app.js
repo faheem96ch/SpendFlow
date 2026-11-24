@@ -388,6 +388,7 @@ async function handleAuthSubmit() {
       currentAccountKey = key;
       records = []; trashItems = []; ownRecords = []; advanceRecords = [];
       loadExtraRecords({});
+      trackEvent('sign_up', { method: 'name_password' });
       startSession(name);
       return;
     }
@@ -403,6 +404,7 @@ async function handleAuthSubmit() {
     ownRecords     = data.myOwnDebt    || [];
     advanceRecords = data.myAdvanceDebt || [];
     loadExtraRecords(data);
+    trackEvent('login', { method: 'name_password' });
     startSession(data.name || name);
   } catch (err) {
     console.error(err);
@@ -422,6 +424,7 @@ function startSession(name) {
 }
 
 function logout() {
+  trackEvent('logout');
   sessionStorage.removeItem(SESSION_KEY);
   sessionStorage.removeItem('hostelAuthName');
   sessionStorage.removeItem('hostelAuthKey');
@@ -847,6 +850,7 @@ function addRecord() {
   if (!reason)  { alert('Plz enter a reason .'); return; }
 
   records.unshift({ id: Date.now(), student, lender, amount, date, time, reason });
+  trackEvent('add_entry', { section: 'receivables' });
   save();
   renderStudentAccounts();
   renderTable();
@@ -1200,6 +1204,7 @@ function buildPDF(recordsList, titleText, filenamePrefix) {
   });
 
   drawPageFooter();
+  trackEvent('file_download', { file_extension: 'pdf', section: 'receivables' });
   doc.save(filenamePrefix + '_' + today.replace(/\//g, '-') + '.pdf');
 
   function drawPageFooter() {
@@ -1231,6 +1236,7 @@ function addOwnRecord() {
   if (!reason) { alert('Plz enter a reason.'); return; }
 
   ownRecords.unshift({ id: Date.now(), from, amount, date, time, reason });
+  trackEvent('add_entry', { section: 'main' });
   saveOwn();
   renderOwnAccounts();
   renderOwnTable();
@@ -1592,6 +1598,7 @@ function buildOwnPDF(recordsList, titleText, filenamePrefix, opts) {
   });
 
   drawPageFooter();
+  trackEvent('file_download', { file_extension: 'pdf', section: 'main' });
   doc.save(filenamePrefix + '_' + today.replace(/\//g, '-') + '.pdf');
 
   function drawPageFooter() {
@@ -1665,6 +1672,7 @@ function addAdvanceRecord() {
   if (!reason)   { alert('Plz enter a reason.'); return; }
 
   advanceRecords.unshift({ id: Date.now(), name, otherName, amountTaken, amountPrice: price, amountRemaining, date, time, reason });
+  trackEvent('add_entry', { section: 'tasks' });
   saveAdvance();
   renderAdvanceAccounts();
   renderAdvanceTable();
@@ -2052,6 +2060,7 @@ function buildAdvancePDF(recordsList, titleText, filenamePrefix) {
   });
 
   drawPageFooter();
+  trackEvent('file_download', { file_extension: 'pdf', section: 'tasks' });
   doc.save(filenamePrefix + '_' + today.replace(/\//g, '-') + '.pdf');
 
   function drawPageFooter() {
@@ -2233,6 +2242,7 @@ function createExtraAccount(def) {
     renderAccounts();
     renderTable();
     resetForm();
+    trackEvent('add_entry', { section: key });
     showToast();
   }
 
