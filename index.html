@@ -164,6 +164,10 @@
 
           <i class="hd-div hd-div-sm" aria-hidden="true"></i>
 
+          <button class="menu-dots-btn header-close-btn" id="headerCloseBtn" type="button" aria-label="Close" title="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg>
+          </button>
+
           <div class="header-menu" id="headerMenuWrap">
             <button class="menu-dots-btn" id="menuDotsBtn" type="button" aria-label="Menu" aria-haspopup="true" aria-expanded="false" aria-controls="menuDropdown">
               <svg viewBox="0 0 24 24" fill="currentColor"><rect class="b1" x="3" y="5" width="18" height="3" rx="1.5"/><rect class="b2" x="3" y="10.5" width="18" height="3" rx="1.5"/><rect class="b3" x="3" y="16" width="18" height="3" rx="1.5"/></svg>
@@ -192,6 +196,11 @@
                 <div class="mp-div"></div>
 
                 <div class="mp-list">
+                  <button class="menu-dropdown-item" id="menuDashboardBtn" type="button" style="--n:1">
+                    <span class="mp-ico"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="10" rx="2.2"/><rect x="13" y="3" width="8" height="6" rx="2.2"/><rect x="3" y="15" width="8" height="6" rx="2.2"/><rect x="13" y="11" width="8" height="10" rx="2.2"/></svg></span>
+                    <span class="mp-label">Dashboard</span>
+                    <svg class="mp-go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+                  </button>
                   <button class="menu-dropdown-item" id="menuTasksBtn" type="button" style="--n:1">
                     <span class="mp-ico"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2.5" y="2.5" width="8.5" height="8.5" rx="2.4"/><rect x="13" y="2.5" width="8.5" height="8.5" rx="2.4" transform="rotate(10 17.2 6.7)"/><rect x="2.5" y="13" width="8.5" height="8.5" rx="2.4"/><rect x="13" y="13" width="8.5" height="8.5" rx="2.4"/></svg></span>
                     <span class="mp-label">Tasks</span>
@@ -262,6 +271,116 @@
       </div>
     </header>
 
+    <!-- ===== DASHBOARD (first screen after login) ===== -->
+    <main class="dsh" id="dashboardView">
+      <div class="dsh-titlebar">
+        <span class="dsh-title-ico"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="8" height="10" rx="2.2"/><rect x="13" y="3" width="8" height="6" rx="2.2"/><rect x="3" y="15" width="8" height="6" rx="2.2"/><rect x="13" y="11" width="8" height="10" rx="2.2"/></svg></span>
+        <h2 class="dsh-title">Dashboard</h2>
+        <i class="dsh-title-line" aria-hidden="true"></i>
+      </div>
+
+      <div class="dsh-list">
+      <section class="dsh-gwrap" style="--i:1">
+        <div class="dsh-gtitle">
+          <span class="dsh-gico"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 7.5A3.5 3.5 0 0 1 6.5 4H18v3H7c-.6 0-1 .4-1 .9s.4.9 1 .9h12.5A1.5 1.5 0 0 1 21 10.3v7.2a3.5 3.5 0 0 1-3.5 3.5h-11A3.5 3.5 0 0 1 3 17.5z"/><circle cx="16.6" cy="14.6" r="1.7" fill="#fff"/></svg></span>
+          <h3 class="dsh-gname">MoneyTrack</h3>
+          <i class="dsh-gline" aria-hidden="true"></i>
+        </div>
+        <div class="dsh-pair">
+          <section class="dsh-card dsh-card-sm" id="dshCardRcv">
+            <div class="dsh-head">
+              <button type="button" class="dsh-open" data-kind="rcv" aria-label="Open Receivables account">
+                <span class="dsh-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+                <b class="dsh-name">Receivables</b>
+              </button>
+              <button type="button" class="dsh-toggle" data-panel="dshRcvPanel" aria-expanded="false" aria-controls="dshRcvPanel" aria-label="Show Receivables account names">
+                <span class="dsh-count" id="dshRcvCount" aria-label="Receivables accounts">0</span>
+                <span class="dsh-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+              </button>
+            </div>
+          </section>
+          <section class="dsh-card dsh-card-sm" id="dshCardMain">
+            <div class="dsh-head">
+              <button type="button" class="dsh-open" data-kind="main" aria-label="Open Main account">
+                <span class="dsh-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5"/></svg></span>
+                <b class="dsh-name">Main</b>
+              </button>
+              <button type="button" class="dsh-toggle" data-panel="dshMainPanel" aria-expanded="false" aria-controls="dshMainPanel" aria-label="Show Main account names">
+                <span class="dsh-count" id="dshMainCount" aria-label="Main accounts">0</span>
+                <span class="dsh-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+              </button>
+            </div>
+          </section>
+        </div>
+        <div class="dsh-panel" id="dshRcvPanel"><div class="dsh-collapse"><div class="dsh-collapse-in"><div class="dsh-area" id="dshRcvArea"></div></div></div></div>
+        <div class="dsh-panel" id="dshMainPanel"><div class="dsh-collapse"><div class="dsh-collapse-in"><div class="dsh-area" id="dshMainArea"></div></div></div></div>
+      </section>
+      <section class="dsh-gwrap" style="--i:2">
+        <div class="dsh-gtitle">
+          <span class="dsh-gico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="13" height="13" rx="3.4" fill="none" stroke="currentColor" stroke-width="2.4"/><rect x="8.5" y="8.5" width="12.5" height="12.5" rx="3.2" fill="currentColor"/><rect x="12" y="12" width="5.6" height="5.6" rx="1.4" fill="#e9f0fc"/></svg></span>
+          <h3 class="dsh-gname">Items</h3>
+          <i class="dsh-gline" aria-hidden="true"></i>
+        </div>
+        <div class="dsh-pair">
+          <section class="dsh-card dsh-card-sm" id="dshCardTake">
+            <div class="dsh-head">
+              <button type="button" class="dsh-open" data-kind="ex" data-ex="ex1" aria-label="Open Take back account">
+                <span class="dsh-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></span>
+                <b class="dsh-name">Take back</b>
+              </button>
+              <button type="button" class="dsh-toggle" data-panel="dshTakePanel" aria-expanded="false" aria-controls="dshTakePanel" aria-label="Show Take back account names">
+                <span class="dsh-count" id="dshTakeCount" aria-label="Take back accounts">0</span>
+                <span class="dsh-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+              </button>
+            </div>
+          </section>
+          <section class="dsh-card dsh-card-sm" id="dshCardRet">
+            <div class="dsh-head">
+              <button type="button" class="dsh-open" data-kind="ex" data-ex="ex2" aria-label="Open Item Return account">
+                <span class="dsh-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5v8l9 5 9-5z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg></span>
+                <b class="dsh-name">Item Return</b>
+              </button>
+              <button type="button" class="dsh-toggle" data-panel="dshRetPanel" aria-expanded="false" aria-controls="dshRetPanel" aria-label="Show Item Return account names">
+                <span class="dsh-count" id="dshRetCount" aria-label="Item Return accounts">0</span>
+                <span class="dsh-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+              </button>
+            </div>
+          </section>
+        </div>
+        <div class="dsh-panel" id="dshTakePanel"><div class="dsh-collapse"><div class="dsh-collapse-in"><div class="dsh-area" id="dshTakeArea"></div></div></div></div>
+        <div class="dsh-panel" id="dshRetPanel"><div class="dsh-collapse"><div class="dsh-collapse-in"><div class="dsh-area" id="dshRetArea"></div></div></div></div>
+      </section>
+      <section class="dsh-card" id="dshCardTasks" style="--i:3">
+        <div class="dsh-head">
+          <button type="button" class="dsh-open" data-kind="adv" aria-label="Open Tasks account">
+            <span class="dsh-ico"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="2.5" y="2.5" width="8.5" height="8.5" rx="2.4"/><rect x="13" y="2.5" width="8.5" height="8.5" rx="2.4" transform="rotate(10 17.2 6.7)"/><rect x="2.5" y="13" width="8.5" height="8.5" rx="2.4"/><rect x="13" y="13" width="8.5" height="8.5" rx="2.4"/></svg></span>
+            <span class="dsh-meta"><b class="dsh-name">Tasks</b><span class="dsh-sub">Task accounts</span></span>
+          </button>
+          <button type="button" class="dsh-toggle" aria-expanded="false" aria-controls="dshTasksArea" aria-label="Show Tasks account names">
+            <span class="dsh-count" id="dshTasksCount" aria-label="Tasks accounts">0</span>
+            <span class="dsh-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </button>
+        </div>
+        <div class="dsh-collapse"><div class="dsh-collapse-in"><div class="dsh-area" id="dshTasksArea"></div></div></div>
+      </section>
+      <section class="dsh-card" id="dshCardNotes" style="--i:4">
+        <div class="dsh-head">
+          <button type="button" class="dsh-open" data-kind="ex" data-ex="ex3" aria-label="Open Note Text account">
+            <span class="dsh-ico"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 2h8.2L20 7.8V19a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3z"/><path d="M14 2v4.2A1.8 1.8 0 0 0 15.8 8H20" fill="#e9f0fc" opacity=".55"/><rect x="7" y="12" width="10" height="2.2" rx="1.1" fill="#e9f0fc"/><rect x="7" y="16.2" width="6.5" height="2.2" rx="1.1" fill="#e9f0fc"/></svg></span>
+            <span class="dsh-meta"><b class="dsh-name">Note Text</b><span class="dsh-sub">Note accounts</span></span>
+          </button>
+          <button type="button" class="dsh-toggle" aria-expanded="false" aria-controls="dshNotesArea" aria-label="Show Note Text account names">
+            <span class="dsh-count" id="dshNotesCount" aria-label="Note Text accounts">0</span>
+            <span class="dsh-chev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></span>
+          </button>
+        </div>
+        <div class="dsh-collapse"><div class="dsh-collapse-in"><div class="dsh-area" id="dshNotesArea"></div></div></div>
+      </section>
+      </div>
+    </main>
+
+    <!-- ===== RECEIVABLES (opens from the Dashboard / menu) ===== -->
+    <div id="receivablesView" style="display:none;">
     <section class="card rcv-card">
       <div class="rcv-top">
         <div class="rcv-title">
@@ -329,13 +448,6 @@
       <div id="studentAccountsArea"></div>
     </section>
 
-    <div class="toggle-btn-wrap">
-      <span class="toggle-btn-label">All Records</span>
-      <button class="footer-toggle-btn" id="recordsToggleBtn" type="button" aria-label="Toggle all records">
-        <svg class="footer-toggle-arrow" id="recordsToggleArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-    </div>
-
     <section class="card" id="allRecordsSection" style="display:none;">
       <div class="records-header">
         <div>
@@ -356,8 +468,9 @@
         <span class="total-value" id="totalAmount">Rs. 0</span>
       </div>
     </section>
+    </div><!-- /receivablesView -->
 
-<div class="toggle-btn-wrap">
+<div class="toggle-btn-wrap about-toggle-wrap">
   <span class="toggle-btn-label">About</span>
   <button class="footer-toggle-btn" id="footerToggleBtn" type="button" aria-label="Toggle footer">
       <svg class="footer-toggle-arrow" id="footerToggleArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
@@ -392,7 +505,7 @@
           <div class="footer-section footer-section-left">
             <h3 class="footer-heading"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.1 0l2.8-2.8a5 5 0 0 0-7.1-7.1l-1.3 1.3"/><path d="M14 11a5 5 0 0 0-7.1 0L4.1 13.8a5 5 0 0 0 7.1 7.1l1.3-1.3"/></svg>Quick Links</h3>
             <ul class="footer-links">
-              <li><a href="#" onclick="window.scrollTo({top:0,behavior:'smooth'}); return false;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6 2.4 10.8a.8.8 0 0 0 .5 1.4H5V20a1.4 1.4 0 0 0 1.4 1.4H10v-6h4v6h3.6A1.4 1.4 0 0 0 19 20v-7.8h2.1a.8.8 0 0 0 .5-1.4z"/></svg>Home</a></li>
+              <li><a href="#" onclick="goToDashboard(); return false;"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.6 2.4 10.8a.8.8 0 0 0 .5 1.4H5V20a1.4 1.4 0 0 0 1.4 1.4H10v-6h4v6h3.6A1.4 1.4 0 0 0 19 20v-7.8h2.1a.8.8 0 0 0 .5-1.4z"/></svg>Home</a></li>
               <li><a href="#" onclick="openMyselfPage(); return false;"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="7.5" r="4.4"/><path d="M3.5 21c0-4.4 3.7-7 8.5-7s8.5 2.6 8.5 7z"/></svg>My Account</a></li>
               <li><a href="#" onclick="openAdvancePage(); return false;"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2.5" y="2.5" width="8.5" height="8.5" rx="2.4"/><rect x="13" y="2.5" width="8.5" height="8.5" rx="2.4"/><rect x="2.5" y="13" width="8.5" height="8.5" rx="2.4"/><rect x="13" y="13" width="8.5" height="8.5" rx="2.4"/></svg>Tasks</a></li>
               <li><a href="#" onclick="openAboutModal(); return false;"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="7.2" r="1.6" fill="#fff"/><rect x="10.5" y="10.3" width="3" height="7.4" rx="1.2" fill="#fff"/></svg>About Us</a></li>

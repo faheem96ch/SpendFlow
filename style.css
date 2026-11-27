@@ -2111,3 +2111,246 @@ td { padding: 10px 12px; vertical-align: middle; }
     padding: 5px 2px; border-radius: 7px; font-size: .62rem;
   }
 }
+
+
+/* =====================================================================
+   DASHBOARD — first screen after login. Soft blue glass cards (same look
+   as the Trash page): a Receivables shortcut on top, then MoneyTrack,
+   Items, Tasks and Note Text. Each card shows its account count and opens
+   smoothly to the list of account names.
+   ===================================================================== */
+.dsh {
+  --d-navy: #0b1f6b; --d-blue: #0a5ee6; --d-line: #cfe0f8;
+  font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+  color: var(--d-navy);
+  margin-bottom: 26px;
+}
+
+/* ---- title bar ---- */
+.dsh-titlebar { display: flex; align-items: center; gap: 12px; margin: 4px 0 18px; }
+.dsh-title-ico { flex: none; width: 36px; height: 36px; color: var(--d-blue); filter: drop-shadow(0 6px 8px rgba(10, 94, 230, .25)); animation: hdPop .6s cubic-bezier(.2, 1.4, .3, 1) .1s backwards; }
+.dsh-title-ico svg { width: 100%; height: 100%; display: block; }
+.dsh-title { flex: none; margin: 0; font-size: 1.75rem; line-height: 1.1; font-weight: 700; letter-spacing: -.01em; color: var(--d-navy); animation: hdDrop .6s cubic-bezier(.2, .9, .3, 1.1) .15s backwards; }
+.dsh-title-line { flex: 1 1 24px; min-width: 12px; height: 2.5px; border-radius: 3px; transform-origin: left center; background: linear-gradient(90deg, var(--d-blue), rgba(10, 94, 230, 0)); animation: trLine .9s cubic-bezier(.2, .8, .2, 1) .3s backwards; }
+
+/* ---- count number (outside of every option) ---- */
+.dsh-count {
+  flex: none; min-width: 42px; height: 42px; padding: 0 10px; display: grid; place-items: center;
+  border-radius: 14px; font-size: 1.05rem; font-weight: 700; line-height: 1; color: #fff;
+  background: linear-gradient(135deg, #2aaaff, #0a5ee6);
+  box-shadow: 0 8px 16px rgba(10, 94, 230, .28), inset 0 0 0 1px rgba(255, 255, 255, .25);
+}
+.dsh-count.bump { animation: trBump .5s cubic-bezier(.2, 1.6, .3, 1); }
+.dsh-count-w { background: rgba(255, 255, 255, .24); box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .5); }
+
+/* ---- top "Receivables" shortcut ---- */
+.dsh-go {
+  all: unset; box-sizing: border-box; position: relative; overflow: hidden; width: 100%; cursor: pointer;
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px; margin-bottom: 14px;
+  border-radius: 22px; color: #fff;
+  background: linear-gradient(135deg, #2aaaff 0%, #0a5ee6 100%);
+  box-shadow: 0 14px 28px rgba(10, 94, 230, .28), inset 0 0 0 1px rgba(255, 255, 255, .25);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .25s cubic-bezier(.2, 1.3, .3, 1), box-shadow .25s ease;
+  animation: trCardIn .6s cubic-bezier(.2, .9, .3, 1.08) .15s backwards;
+}
+.dsh-go:hover { transform: translateY(-2px); box-shadow: 0 20px 34px rgba(10, 94, 230, .34), inset 0 0 0 1px rgba(255, 255, 255, .3); }
+.dsh-go:active { transform: scale(.98); }
+.dsh-go:focus-visible { outline: 3px solid rgba(23, 162, 232, .6); outline-offset: 3px; }
+.dsh-go-ico { flex: none; width: 54px; height: 54px; display: grid; place-items: center; border-radius: 17px; color: #fff; background: rgba(255, 255, 255, .2); border: 1.5px solid rgba(255, 255, 255, .4); }
+.dsh-go-ico svg { width: 30px; height: 30px; display: block; }
+.dsh-go-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.dsh-go-meta b { font-size: 1.15rem; font-weight: 700; line-height: 1.25; }
+.dsh-go-meta span { font-size: .85rem; font-weight: 500; opacity: .92; }
+.dsh-go-arrow { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: rgba(255, 255, 255, .22); transition: transform .3s cubic-bezier(.2, 1.3, .3, 1); }
+.dsh-go-arrow svg { width: 20px; height: 20px; display: block; }
+.dsh-go:hover .dsh-go-arrow { transform: translateX(4px); }
+
+/* ---- option cards ---- */
+.dsh-list { display: flex; flex-direction: column; gap: 14px; }
+.dsh-card {
+  position: relative; border-radius: 22px; overflow: hidden;
+  background: rgba(255, 255, 255, .94);
+  border: 1.5px solid var(--d-line);
+  box-shadow: 0 10px 26px rgba(40, 110, 220, .1), inset 0 0 0 1px rgba(255, 255, 255, .8);
+  transition: box-shadow .3s ease, border-color .3s ease;
+  animation: trCardIn .6s cubic-bezier(.2, .9, .3, 1.08) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms + 200ms);
+}
+.dsh-card.open { border-color: #a9c9f6; box-shadow: 0 16px 34px rgba(40, 110, 220, .17), inset 0 0 0 1px rgba(255, 255, 255, .8); }
+.dsh-head {
+  all: unset; box-sizing: border-box; width: 100%; cursor: pointer;
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+  -webkit-tap-highlight-color: transparent;
+}
+.dsh-head:focus-visible { outline: 3px solid rgba(23, 162, 232, .55); outline-offset: -3px; border-radius: 22px; }
+.dsh-head:active .dsh-ico { transform: scale(.92); }
+.dsh-ico {
+  flex: none; width: 54px; height: 54px; display: grid; place-items: center; border-radius: 17px; color: #1560e8;
+  background: radial-gradient(circle at 30% 25%, #ffffff 0%, #e6f1ff 70%);
+  box-shadow: 0 6px 14px rgba(40, 110, 220, .14), inset 0 0 0 1px rgba(200, 220, 248, .8);
+  transition: transform .3s cubic-bezier(.2, 1.4, .3, 1);
+}
+.dsh-ico svg { width: 30px; height: 30px; display: block; }
+.dsh-card.open .dsh-ico svg { animation: trIcoPop .55s cubic-bezier(.2, 1.6, .3, 1); }
+.dsh-meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.dsh-name { font-size: 1.15rem; line-height: 1.25; font-weight: 700; color: var(--d-navy); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dsh-sub { font-size: .85rem; font-weight: 500; color: #5b6aa0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dsh-chev {
+  flex: none; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; color: var(--d-blue);
+  background: radial-gradient(circle at 30% 25%, #fff, #e8f2ff); border: 1.5px solid #b9d3f7;
+  box-shadow: 0 6px 14px rgba(40, 110, 220, .15), inset 0 0 10px rgba(255, 255, 255, .9);
+  transition: transform .45s cubic-bezier(.2, 1.3, .3, 1), background .25s, color .25s, box-shadow .25s;
+}
+.dsh-chev svg { width: 20px; height: 20px; display: block; }
+.dsh-head:hover .dsh-chev { box-shadow: 0 10px 20px rgba(40, 110, 220, .25), inset 0 0 10px rgba(255, 255, 255, .9); }
+.dsh-card.open .dsh-chev { transform: rotate(180deg); background: linear-gradient(135deg, #2aaaff, #0a5ee6); color: #fff; border-color: transparent; }
+
+/* smooth open / close (no fixed heights; closed content is also hidden from keyboard / screen readers) */
+.dsh-collapse { display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden; transition: grid-template-rows .45s cubic-bezier(.2, .8, .2, 1), opacity .3s ease, visibility 0s linear .45s; }
+.dsh-card.open .dsh-collapse { grid-template-rows: 1fr; opacity: 1; visibility: visible; transition-delay: 0s; }
+.dsh-collapse-in { min-height: 0; overflow: hidden; }
+.dsh-area { padding: 2px 14px 16px; }
+
+/* ---- account names ---- */
+.dsh-group + .dsh-group { margin-top: 16px; }
+.dsh-group-title { display: flex; align-items: center; gap: 8px; margin: 2px 2px 8px; font-size: .74rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: #5b6aa0; }
+.dsh-group-title em { font-style: normal; min-width: 20px; padding: 1px 7px; border-radius: 999px; text-align: center; color: #fff; background: var(--d-blue); letter-spacing: 0; }
+.dsh-group-title i { flex: 1; height: 1.5px; border-radius: 2px; background: #dbe8fa; }
+.dsh-rows { display: flex; flex-direction: column; gap: 8px; }
+.dsh-row {
+  all: unset; box-sizing: border-box; width: 100%; cursor: pointer;
+  display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: 14px;
+  background: #f6faff; border: 1.5px solid #d6e4f8;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .18s ease, background .2s, box-shadow .2s, border-color .2s;
+}
+.dsh-row:hover { background: #fff; border-color: #9ec0f3; transform: translateY(-1px); box-shadow: 0 8px 16px rgba(40, 110, 220, .14); }
+.dsh-row:active { transform: scale(.98); }
+.dsh-row:focus-visible { outline: 3px solid rgba(23, 162, 232, .55); outline-offset: 1px; }
+.dsh-av { flex: none; width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; font-size: .95rem; font-weight: 700; color: #fff; background: linear-gradient(135deg, #2aaaff, #0a5ee6); box-shadow: 0 4px 10px rgba(10, 94, 230, .22); }
+.dsh-rname { flex: 1; min-width: 0; font-size: .98rem; font-weight: 600; color: var(--d-navy); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dsh-rgo { flex: none; width: 18px; height: 18px; color: #7aa3e6; transition: transform .2s ease; }
+.dsh-row:hover .dsh-rgo { transform: translateX(3px); }
+.dsh-empty { padding: 18px 14px; text-align: center; border: 1.5px dashed #c6daf6; border-radius: 16px; background: #f3f8ff; color: #5b6aa0; font-size: .9rem; }
+
+@media (max-width: 480px) {
+  .dsh-title { font-size: 1.5rem; }
+  .dsh-title-ico { width: 32px; height: 32px; }
+  .dsh-titlebar { gap: 10px; }
+  .dsh-go, .dsh-head { padding: 12px 12px; gap: 11px; }
+  .dsh-go-ico, .dsh-ico { width: 48px; height: 48px; border-radius: 15px; }
+  .dsh-go-ico svg, .dsh-ico svg { width: 26px; height: 26px; }
+  .dsh-go-meta b, .dsh-name { font-size: 1.05rem; }
+  .dsh-go-meta span, .dsh-sub { font-size: .78rem; }
+  .dsh-count { min-width: 38px; height: 38px; font-size: .98rem; border-radius: 12px; }
+  .dsh-chev, .dsh-go-arrow { width: 36px; height: 36px; }
+  .dsh-area { padding: 0 10px 14px; }
+}
+@media (max-width: 360px) {
+  .dsh-title { font-size: 1.3rem; }
+  .dsh-sub, .dsh-go-meta span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dsh, .dsh *, .dsh-card, .dsh-go { animation: none !important; transition-duration: .01ms !important; }
+}
+
+/* =====================================================================
+   DASHBOARD v2 — MoneyTrack (Receivables + Main) and Items (Take back +
+   Item Return) are shown as two side-by-side boxes under one heading.
+   Every box: icon / name  -> opens the whole account,
+              number / arrow -> shows the list of account names.
+   ===================================================================== */
+.dsh-gwrap { animation: trCardIn .6s cubic-bezier(.2, .9, .3, 1.08) backwards; animation-delay: calc(var(--i, 0) * 70ms + 200ms); }
+.dsh-gtitle { display: flex; align-items: center; gap: 10px; margin: 0 2px 10px; }
+.dsh-gico { flex: none; width: 30px; height: 30px; color: var(--d-blue); filter: drop-shadow(0 4px 6px rgba(10, 94, 230, .22)); }
+.dsh-gico svg { width: 100%; height: 100%; display: block; }
+.dsh-gname { flex: none; margin: 0; font-size: 1.2rem; line-height: 1.2; font-weight: 700; color: var(--d-navy); }
+.dsh-gline { flex: 1 1 24px; min-width: 12px; height: 2.5px; border-radius: 3px; background: linear-gradient(90deg, var(--d-blue), rgba(10, 94, 230, 0)); }
+
+.dsh-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.dsh-pair .dsh-card { animation-delay: 0s; }
+
+/* head is now a plain row holding two buttons */
+.dsh-head { cursor: default; padding: 0; gap: 0; align-items: stretch; }
+.dsh-open, .dsh-toggle {
+  all: unset; box-sizing: border-box; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  display: flex; align-items: center;
+}
+.dsh-open { flex: 1; min-width: 0; gap: 14px; padding: 14px 6px 14px 16px; }
+.dsh-toggle { flex: none; gap: 10px; padding: 14px 16px 14px 6px; }
+.dsh-open:focus-visible, .dsh-toggle:focus-visible { outline: 3px solid rgba(23, 162, 232, .55); outline-offset: -3px; border-radius: 22px; }
+.dsh-open:active .dsh-ico { transform: scale(.92); }
+.dsh-toggle:active .dsh-chev { transform: scale(.9); }
+.dsh-card.open .dsh-toggle:active .dsh-chev { transform: rotate(180deg) scale(.9); }
+.dsh-toggle:hover .dsh-chev { box-shadow: 0 10px 20px rgba(40, 110, 220, .25), inset 0 0 10px rgba(255, 255, 255, .9); }
+
+/* compact box (the two side-by-side ones) */
+.dsh-card-sm .dsh-head { flex-direction: column; }
+.dsh-card-sm .dsh-open { flex: none; gap: 10px; padding: 12px 12px 8px; }
+.dsh-card-sm .dsh-toggle { justify-content: space-between; padding: 4px 12px 12px; }
+.dsh-card-sm .dsh-ico { width: 42px; height: 42px; border-radius: 13px; }
+.dsh-card-sm .dsh-ico svg { width: 24px; height: 24px; }
+.dsh-card-sm .dsh-name { font-size: 1rem; }
+.dsh-card-sm .dsh-count { min-width: 36px; height: 36px; font-size: .98rem; border-radius: 12px; }
+.dsh-card-sm .dsh-chev { width: 34px; height: 34px; }
+.dsh-card-sm .dsh-chev svg { width: 18px; height: 18px; }
+
+/* list of names for the side-by-side boxes (opens under the pair, full width) */
+.dsh-panel .dsh-collapse-in { min-height: 0; overflow: hidden; }
+.dsh-panel.open .dsh-collapse { grid-template-rows: 1fr; opacity: 1; visibility: visible; transition-delay: 0s; }
+.dsh-panel .dsh-area {
+  margin-top: 10px; padding: 14px;
+  background: rgba(255, 255, 255, .94); border: 1.5px solid #a9c9f6; border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(40, 110, 220, .12);
+}
+
+@media (max-width: 560px) {
+  .dsh-open { padding: 12px 4px 12px 12px; gap: 11px; }
+  .dsh-toggle { padding: 12px 12px 12px 4px; gap: 8px; }
+  .dsh-card-sm .dsh-open { padding: 11px 10px 6px; }
+  .dsh-card-sm .dsh-toggle { padding: 4px 10px 11px; }
+  .dsh-card-sm .dsh-name { font-size: .95rem; }
+  .dsh-gname { font-size: 1.1rem; }
+  .dsh-pair { gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dsh-gwrap { animation: none !important; }
+}
+
+
+/* =====================================================================
+   Dashboard: no search icon.  Receivables: X instead of the 3-line menu,
+   no "All Records" / "About" at the bottom.  Name list: record count.
+   ===================================================================== */
+.header-close-btn { display: none; }
+#appMain.home-rcv .header-close-btn { display: grid; }
+#appMain.home-rcv #headerMenuWrap { display: none; }
+#appMain.home-dash #headerSearchWrap,
+#appMain.home-dash .header-right > .hd-div-sm { display: none; }
+#appMain.home-rcv .about-toggle-wrap, #appMain.home-rcv ~ .about-toggle-wrap,
+#appMain.home-rcv #siteFooter, #appMain.home-rcv ~ #siteFooter { display: none !important; }
+.header-close-btn svg { width: 22px; height: 22px; }
+.header-close-btn:hover svg { transform: rotate(90deg); }
+.header-close-btn svg { transition: transform .3s cubic-bezier(.2, 1.4, .3, 1); }
+
+.dsh-av-lg { font-size: .78rem; }
+
+
+/* ===== Receipt download chooser (.pdf / Image) ===== */
+.dl-pick-overlay { position: fixed; inset: 0; z-index: 99999; display: grid; place-items: center; padding: 20px; background: rgba(10, 30, 70, .45); backdrop-filter: blur(3px); animation: dlPickFade .18s ease; }
+.dl-pick-card { position: relative; width: min(340px, 100%); padding: 22px 20px 18px; border-radius: 22px; background: #fff; border: 1.5px solid #a9c9f6; box-shadow: 0 24px 60px rgba(10, 60, 160, .35); text-align: center; animation: dlPickPop .25s cubic-bezier(.2, 1.3, .3, 1); }
+.dl-pick-title { margin: 0 0 16px; font-size: 1.15rem; font-weight: 700; color: #0b2a6b; }
+.dl-pick-x { position: absolute; top: 8px; right: 10px; width: 34px; height: 34px; border: 0; border-radius: 50%; background: transparent; color: #4a6aa8; font-size: 1.7rem; line-height: 1; cursor: pointer; }
+.dl-pick-x:hover { background: #eaf2ff; }
+.dl-pick-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.dl-pick-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px 8px 14px; border: 1.5px solid #a9c9f6; border-radius: 16px; background: linear-gradient(180deg, #f4f9ff, #e3f0ff); color: #0a4fc4; cursor: pointer; font: inherit; transition: transform .15s, box-shadow .15s; }
+.dl-pick-btn svg { width: 34px; height: 34px; }
+.dl-pick-btn b { font-size: 1.05rem; }
+.dl-pick-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(40, 110, 220, .22); }
+.dl-pick-btn:active { transform: scale(.96); }
+.dl-pick-btn:disabled { opacity: .55; cursor: default; transform: none; box-shadow: none; }
+.dl-pick-img { color: #0a8a46; background: linear-gradient(180deg, #f3fcf6, #dff5e8); border-color: #9fd9b6; }
+.dl-pick-msg { margin: 12px 0 0; min-height: 1.1em; font-size: .88rem; color: #4a5f86; }
+@keyframes dlPickFade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes dlPickPop { from { opacity: 0; transform: scale(.9) } to { opacity: 1; transform: none } }
